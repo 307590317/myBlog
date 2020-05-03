@@ -1,3 +1,25 @@
 module.exports = {
-  "/category/": require("../../category/sidebar_contents"),
+  "/feBase/": [
+    "",
+    "1、浏览器内核",
+    "2、CSS与JS引入方式",
+    "3、Js基础知识",
+    "4、Js常用的操作语句",
+    "5、Math常用方法（10个）",
+    "6、Date日期基础及常用方法",
+    "7、字符串方法（12个）",
+    "8、数组结构方法和去重",
+    "9、数据类型转换",
+    "10、逻辑运算符",
+  ],
+  "/vue/": [
+    "",
+    "article-1",
+    "article-2"
+  ],
+  "/react/": [
+    "",
+    "article-1",
+    "article-2"
+  ]
 };

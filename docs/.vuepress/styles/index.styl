@@ -1,0 +1,93 @@
+.navbar
+  box-shadow 0 2px 8px #f0f1f2
+  border-bottom 0
+  .links
+    top 0 !important
+    left 19rem
+    line-height $navbarHeight - 0.1rem
+    .search-box
+      margin-right: 1.5rem;
+      input
+        width 15rem
+    .nav-links
+      a
+        line-height $navbarHeight - 0.1rem
+        
+@media (max-width: $MQNarrow)
+  .search-box
+    input
+      width 50px !important
+      &:focus
+        width 15rem !important
+
+.theme-default-content,
+.page-edit,
+.page-nav
+  max-width 1500px !important
+  margin-left 0 !important
+
+blockquote
+    padding: .3rem 1.5rem;
+    border-left-width: .5rem;
+    border-left-style: solid;
+    background-color: #f3f5f7;
+    border-color: #42b983;
+    color #2c3e50
+
+.sidebar
+  & > .sidebar-links
+    & > li > a.sidebar-link
+      line-height 1.4 !important
+    & > li:not(:first-child)
+      margin-top .15rem !important
+
+em
+  font-style normal
+  color red
+strong
+  font-weight 700
+
+
+.theme-default-content
+  position relative
+  margin-right: 300px !important
+  code
+    color #c7254e
+    background transparent
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  & > p:first-child
+    margin-top 1.6rem !important
+  .table-of-contents
+    position fixed
+    width 260px
+    right 2.8rem
+    top 8.2rem
+    & > ul
+      position relative
+      &:before
+        position absolute
+        top 0
+        left 6.45px
+        bottom 0;
+        content ""
+        width: 2px
+        background-color #ebedef
+        opacity .5
+        z-index -1
+      li
+        font-size .9rem
+        a
+          display: block;
+          font-weight 400
+          color #47be89
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+      & > li > a
+        font-weight 600
+        color #3eaf7c
+.custom-block
+  p,li
+    white-space pre-wrap 
+  
