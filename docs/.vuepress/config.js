@@ -4,9 +4,12 @@ module.exports = {
   description: "A lightweight creator for VuePress project.",
   base: "/",
   head: [
-    ["link",{ rel: "icon",href: "/assets/logo.png" }]
+    ["link",{ rel: "icon",href: "/assets/logo.jpg" }]
   ],
   markdown: {
+    toc:{
+      includeLevel: [2,3,4]
+    },
     lineNumbers: false,
   },
   themeConfig: {
@@ -16,9 +19,9 @@ module.exports = {
     lastUpdated: "上次更新",
     repo: "https://github.com/zpfz/vuepress-creator",
     editLinks: false,
-    // algolia: {
-    //   apiKey: '25626fae796133dc1e734c6bcaaeac3c',
-    //   indexName: 'docsearch'
-    // }
-  },
+    algolia: {
+      apiKey: '89b040d15418343620172b26763c0a5a',
+      indexName: 'zhaoyu'
+    }
+  }
 };

@@ -33,7 +33,9 @@ blockquote
     background-color: #f3f5f7;
     border-color: #42b983;
     color #2c3e50
-
+img
+  display block
+  margin 10px 0
 .sidebar
   & > .sidebar-links
     & > li > a.sidebar-link
@@ -43,6 +45,7 @@ blockquote
 
 em
   font-style normal
+  font-weight 600
   color red
 strong
   font-weight 700
@@ -61,8 +64,12 @@ strong
   .table-of-contents
     position fixed
     width 260px
-    right 2.8rem
-    top 8.2rem
+    right 3.1rem
+    top 6rem
+    max-height 74vh
+    padding-right 20px
+    box-sizing border-box
+    overflow-y auto
     & > ul
       position relative
       &:before
@@ -77,6 +84,8 @@ strong
         z-index -1
       li
         font-size .9rem
+        li
+          font-size .86rem
         a
           display: block;
           font-weight 400
@@ -88,6 +97,7 @@ strong
         font-weight 600
         color #3eaf7c
 .custom-block
-  p,li
+  padding-bottom .8rem !important
+  p
     white-space pre-wrap 
   

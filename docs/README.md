@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /assets/logo.png
+heroImage: /assets/logo.jpg
 heroText: 一个前端的自我修养
 actionText: My blog →
 actionLink: /feBase/
