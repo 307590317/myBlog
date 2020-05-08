@@ -1,0 +1,103 @@
+---
+title: 24、DOM2级事件
+sidebarDepth: 0
+tags:
+  - 事件
+---
+[[toc]]
+# DOM2级事件
+## DOM0级事件绑定
+::: tip 原理
+1、`onclick`是元素对象的一个私有属性，在给元素的`click`行为绑定方法的时候，就相当于在给元素的`onclick`这个属性赋值；重复给元素的同一个事件绑定方法，就相当于把之前的值替换掉，只能执行最后一次绑定的方法。行为触发的时候就会执行对应的方法；
+
+为什么给`onclick`赋值后，点击的时候就可以执行对应的方法？
+
+`click、mouseover、mouseout、mouseenter、mouseleave`...对于这些事件行为，浏览器会把一些常用的事件行为挂载到元素对象的私有属性上如`onclick`属性，让我们可以实现`DOM0`级事件绑定；
+`DOMContentLoaded`属于`DOM2`级事件，浏览器没有把它挂载到元素对象的私有属性上，所以不能用`DOM0`级事件来绑定对应事件的方法；
+*在IE6-8下使用DOM0级事件给元素绑定方法，方法执行的时候，不会传入事件对象e，我们要用window.event来获取；*
+:::
+## DOM2级事件绑定
+::: tip 原理
+浏览器把`click`这个事件行为挂载到了内置的事件队列中所对应的事件类型上。我们通过`addEventListener`给元素绑定方法时，浏览器会在事件队列当中，按照事件行为的不同，把绑定的方法存放到对应事件行为下。当对应的事件行为触发时，浏览器会自动到事件队列中找到对应类型下的方法，按照绑定的顺序，依次执行；
+
+`addEventListener`这个方法是定义在元素所属`EventTarget`这个类的原型上的
+*优点：* 可以给元素的某个事件行为绑定多个不同的方法，如果方法相同（即指向的空间地址相同)，则不再重复绑定；
+```js
+var obj={
+  fn1:function () {
+    console.log(1);
+  }
+};
+document.body.addEventListener('click',obj.fn1,false);
+obj.fn1=function () {
+  console.log(2);
+};
+document.body.addEventListener('click',obj.fn1,false);
+//在这个地方点击body的话会输出1，2，因为两个addEventListener中绑定的方法内存地址不是同一个所以两次都会绑定；
+document.body.removeEventListener('click',obj.fn1,false);
+//上一步移除只能移除输出2的这个函数，因为obj.fn1的地址已经更改为输出2的这个地址，所以点击的时候只输出1，不会输出2；
+```
+`addEventListener(事件类型,方法,阶段[true，false]) `  *IE6-8下不兼容*
+true代表在捕获阶段执行方法，false代表在冒泡阶段执行方法
+
+`attachEvent(事件类型(要加on),方法)/detachEvent(事件类型,方法)`  *IE6-8下绑定事件*
+不能控制在哪个阶段发生，只能在冒泡阶段发生;
+```js
+box.attachEvent('onclick',function(e){
+	// 此处的e为IE6-8下的window.event，所以还要处理兼容的问题，
+	e = window.event;
+	target = e.srcElement
+	e.pageX/e.pageY // IE6-8下没有；
+	//兼容处理
+	e.pageX = e.clientX + (document.documentElement.scrollLeft||document.body.scrollLeft);
+	e.pageY = e.clientY + (document.documentElement.scrollTop||document.body.scrollTop);
+	e.preventDefault = function(){
+		return false;
+	}
+	e.stopPropagation = function(){
+		e.cancelBubble=true;
+	}
+})
+```
+:::
+## DOM0和DOM2的区别
+::: tip 区别
+- 1、给元素的同一个事件绑定多个方法<br>
+  `DOM0`不能，如果绑定多个，会按最后绑定的那一个来执行；<br>
+  `DOM2`可以，可以绑定多个不同的方法，但是如果绑定方法的内存地址相同（即同一个方法），则不会再绑定；
+- 2、执行顺序<br>
+  同一个事件类型，按绑定的顺序来执行，`DOM0`和`DOM2`没有执行顺序区别，谁先绑定谁先执行；
+- 3、所有DOM0支持的事件行为，`DOM2`都可以使用，不仅如此，`DOM2`还支持一些`DOM0`没有的事件行为：`DOMContentLoaded`...
+
+`DOMContentLoaded`是一个`DOM2`级事件行为；
+标准浏览器中兼容这个事件：当浏览器中的`DOM`结构加载完成，就会触发这个事件（也会把绑定的方法执行）
+:::
+
+## window.onload
+>当浏览器中所有的资源内容（DOM结构、文本内容、图片……）都加载完成，会触发`onload`事件
+>- 1、它是基于`DOM0`级事件绑定的，所以在一个页面中只能给它绑定一个方法，如果绑定多个方法，会按最后一个绑定的方法执行
+>- 2、如果想在页面中执行多次，应该基于`DOM2`级来绑定；
+
+## `$(function(){})` 或 `$(document).ready(function(){})`
+>当文档中的DOM结构加载完成就会被触发执行，而且在同一个页面中可以使用多次
+>- 1、上面两个是`JQuery`中提供的方法。`JQuery`是基于`DOMContentLoaded`这个事件完成这个操作的
+>- 2、`JQuery`中的事件绑定都是基于`DOM2`事件绑定完成的
+>- 3、但是`DOMContentLoaded`在IE6-8下使用`attachEvent`也是不支持的，JQ在IE6-8下使用的是`readystatechange`这个事件来处理的；
+
+## `window.onload` 和 `$(document).ready()`的区别
+::: tip 区别
+- 1、文档中`DOM`结构加载完成时就会触发`ready`（不包含图片等非文字媒体文件），而`onload`需要所有资源都加载完成才会触发（包括图片、文件等所有元素结构）;
+- 2、`window.onload`是基于`DOM0`级事件来绑定的 ，`$(function(){})` 和 `$(document).ready(function(){})`是基于`DOM2`级事件来绑定的；
+- 3、由于`window.onload`是采用`DOM0`事件绑定，所以不能触发多次，只会触发一次。而`$(function(){})`和`$(document).ready(function(){})`是基于`DOM2`级事件绑定的，所以可以执行多次，按照绑定的顺序执行；
+- 4、由于`window.onload`是采用`DOM0`事件绑定，所以不能绑定多个方法，绑定多个也会按最后一个执行，而`$(function(){})`和`$(document).ready(function(){})`是基于`DOM2`级事件绑定的，所以可以绑定多个不同的方法,执行的时候按照绑定的顺序依次执行；
+:::
+## DOM2级事件绑定的兼容处理
+::: tip addEventListener 和 attachEvent 的区别
+除了语法上的区别，在处理的机制上有一些区别，在IE6-8下，使用`attachEvent`做事件绑定（把方法存放在当前元素指定事件类型的事件队列中）时与`addEventListener`的区别：
+- 1、顺序问题：当事件行为触发，执行对应事件队列中存放的方法，IE低版本浏览器执行方法的顺序是乱序（标准浏览器是按照绑定的先后顺序依次执行的）
+- 2、重复问题：IE低版本浏览器中在向事件队列中添加方法时，即使是同一个方法，也会重复的添加；（标准浏览器的事件池机制很完善，可以自动去重，方法内存地址相同则不会再添加）；
+- 3、`this`问题：IE低版本浏览器中，事件行为触发，对应方法执行的时候，方法中的`this`是`window`，而不像标准浏览器中那样，`this`指向当前元素本身；
+
+*以上问题的根本原因*：IE低版本浏览器中内置的事件队列处理机制不完善导致的；
+
+*解决方法*：自己模拟事件队列，只需要处理IE6-8的事件队列，标准浏览器是不需要处理的

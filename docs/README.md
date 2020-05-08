@@ -2,6 +2,7 @@
 home: true
 heroImage: /assets/logo.jpg
 heroText: 一个前端的自我修养
+tagline: 一蓑烟雨任平生
 actionText: My blog →
 actionLink: /feBase/
 features:

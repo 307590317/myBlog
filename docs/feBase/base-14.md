@@ -137,23 +137,23 @@ return ary;
 
 ### 获取关系的属性
 
-#### `childNodes`：获取所有的子节点
+#### `childNodes` ：获取所有的子节点
 >获取当前元素的所有子节点（节点集合：类数组）
 注：不仅是元素子节点，文本、注释等都会包含在内；子节点说明只是在儿子辈分中查找；
 
-#### `childredn`：获取所有的元素子节点
+#### `childredn` ：获取所有的元素子节点
 ::: tip
 获取所有的元素子节点（元素集合）
 在IE6-8下获取的结果和标准浏览器中有区别：会把注释节点当作元素节点获取到
 :::
-#### `parentNode`：获取元素的父亲节点（元素对象）
-#### `previousSibling`：获取哥哥节点（包括文本或注释）
-#### `nextSibling`：获取弟弟节点（包括文本或注释）
+#### `parentNode` ：获取元素的父亲节点（元素对象）
+#### `previousSibling` ：获取哥哥节点（包括文本或注释）
+#### `nextSibling` ：获取弟弟节点（包括文本或注释）
 >IE6-8下不兼容
-#### `previousElementSibling`：获取上一个元素节点
-#### `nextElementSibling`：获取下一个元素节点
-#### `firstChild`：获取所有子节点中的第一个
-#### `lastChild`：获取所有子节点的最后一个
+#### `previousElementSibling` ：获取上一个元素节点
+#### `nextElementSibling` ：获取下一个元素节点
+#### `firstChild` ：获取所有子节点中的第一个
+#### `lastChild` ：获取所有子节点的最后一个
 >firstElementChild/lastElementChild IE6-8下不兼容
 ### 节点类型
 ::: tip 节点类型
@@ -180,7 +180,7 @@ ele.tagName:获取当前元素的标签名（获取的一般都是大写）,tagN
 #### `replaceChild(a,b)`：用a元素来替换容器中的b元素
 >容器.replcaeChild(a,b);
 ### `复制节点`
-#### `cloneNode（true/false）`：克隆元素节点，true表示包括所有子节点，默认为false
+#### `cloneNode(true/false)`：克隆元素节点，true表示包括所有子节点，默认为false
 >要克隆的元素.cloneNode（），无法克隆元素绑定的事件
 ### `删除节点`
 #### `removerChild()`:从容器中删除指定元素

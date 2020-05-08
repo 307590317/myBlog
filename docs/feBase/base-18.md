@@ -23,7 +23,7 @@ width、height：不是盒子的宽高，而是盒子中内容的宽度和高度
 width和height不仅仅是内容的宽度，而是代表整个盒子的宽度(已经包含了padding和border)，以后修改的padding或者border，只会影响盒子中内容的高度，盒子的大小不会改变
 :::
 
-### css3中的盒子模型属性`box-sizing `
+### css3中的盒子模型属性 `box-sizing `
 ```css
 box{
 	box-sizing:border-box;
@@ -32,7 +32,7 @@ box-sizing的可能值:content-box（default），border-box,inherit(从父类�
 content-box: border和padding不计算入width之内，盒子的宽度=width+padding+border
 border-box: border和padding计算入width之内，盒子的宽度=width
 ```
-### 如何选择*w3c盒子模型*?
+### 如何选择 *w3c盒子模型* ?
 >在网页的顶部加上`<!DOCTYPE html>`声明。假如不加 doctype 声明，那么各个浏览器会根据自己的行为去理解网页，即 ie 浏览器会采用 ie 盒子模型去解释你的盒子，而火狐会采用标准 w3c 盒子模型解释你的盒子，所以网页在不同的浏览器中就显示的不一样了。如果加了 doctype 声明，那么所有浏览器都会采用标准 w3c 盒子模型去解释你的盒子，网页就能在各个浏览器中显示一致了。
 
 ## JS盒模型属性
