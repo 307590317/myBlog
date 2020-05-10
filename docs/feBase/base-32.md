@@ -1,0 +1,80 @@
+---
+title: 32、浏览器缓存
+sidebarDepth: 0
+---
+[[toc]]
+# 32、浏览器缓存
+
+## 浏览器缓存位置
+>- `Memory Cache`：内存缓存,窗口关闭就会消失
+>- `Disk Cache`：磁盘缓存，也就是存储在硬盘中的缓存，读写速度慢，比`Memory Cache`胜在容量和存储时效性上。
+
+## 浏览器会把哪些文件丢进内存中，哪些丢进硬盘中？
+>对于大文件来说，是不会存在内存中的，反之优先。
+>当前系统内存使用率高的话，文件优先存进磁盘中。
+## 浏览器的缓存策略
+>通常浏览器的缓存策略有两种：*强制缓存和协商缓存*,并且缓存策略都是通过`HTTP header`来实现的。
+### 强缓存
+>不会向服务器发送请求，直接从缓存中读取资源。在chrome控制台的Network选项中可以看到请求返回200的状态码，并且Size显示 *form disk cache* 或 *form memory cache*。
+>
+>强缓存可以通过设置两种`HTTP Header`来实现：
+>- `Expires`
+>- `Cache-control`
+### Expires
+>`http1.0`的产物，缓存的过期时间，用来指定资源的到期时间，是服务器端的具体时间点（已不推荐使用）。也就是说，<b>`Expires = max-age + 请求时间`</b>，需要和<b>`Last-Modified`</b>结合使用。<b>`Expires`</b>是`Web`服务器响应消息头字段，在响应`http`请求时告诉浏览器在过期时间前浏览器可以直接从浏览器缓存取数据，而无需再次请求。
+### Cache-Control 
+>`http1.1`的产物，控制缓存的行为<b>`Cache-Control`</b>的默认取值`private`：<b>所有内容只有客户端可以缓存</b>。取值`max-age`时是以秒为单位的。
+### Expires和Cache-Control的区别
+>最大的区别就是<b>`Expires`</b>是`http1.0`的产物，而<b>`Cache-Control`</b>是`http1.1`的产物，两者同时存在的话<b>`Cache-Control`</b>优先级是高于<b>`Expires`</b>的。强缓存判断是否缓存的依据来自于是否超出某个时间或某个时间段，而不关心服务器端文件是否更新。因此才有了协商缓存策略；
+## 协商缓存
+>*协商缓存* 就是当强缓存失效后，浏览器携带缓存标识向服务器发送请求，由服务器根据缓存标识决定是否使用缓存。协商缓存可以通过设置`HTTP Header`来实现：
+>- <b>`Last-Modified`</b>
+>-  <b>`Etag`</b>
+
+### Last-Modified 和 If-Modified-Since
+::: tip
+浏览器在第一次访问资源时，服务器返回资源的同时，在`response header`中会添加<b>`Last-Modified`</b>的`header`，值为这个资源在服务器上最后的修改时间，浏览器接收后缓存资源和`header`。
+浏览器下一次请求时，当强缓存已过期，且检测到有<b>`Last-Modified`</b>这个`header`，就会在请求中添加<b>`If-Modified-Since`</b>这个`header`，值就是<b>`Last-Modified`</b>的值，服务器再次收到这个资源请求，就会根据<b>`If-Modified-Since`</b>这个值与服务器中这个资源的最后修改时间做对比，如果没有变化，就返回304、新的`header`和空响应体，直接从缓存中读取。如果资源修改了，就会返回新的资源和新的过期时间。
+<b>`Last-Modified`存在的弊端</b>：
+- `Last-Modified`只能以秒为单位计时，有些服务器的文档会在亚秒间隙发生变化，这样的话，`Last-Modified`就不再准确；
+- 有些文档可能会被周期性的重写，尽管内容没有发生变化，但修改日期会发生变化。
+:::
+
+### Etag 和 If-None-Match
+::: tip
+为了解决`Last-Modified`存在的弊端,`HTTP1.1`推出了`Etag` 和 `If-None-Match`。`Etag `是服务器响应请求时，返回当前资源的实体标签（由服务器生成，可以是文档的序列号或版本名，或者是文档内容的校验和及其他指纹信息），当发布者对文档进行修改时，可以修改文档的实体标签来说明这个新的版本，这样，缓存就可以用`If-None-Match`来检验资源是否被修改过。
+浏览器在下次发送请求时，就会将`Etag`的值放在请求头`header`的`If-None-Match`中。服务器会比对`If-None-Match`的值和该资源的`Etag`值是否一致，如果一致，说明未修改，返回304，浏览器继续使用缓存。如果不一致，返回200以及新的资源和`Etag`；
+`Etag 和 Last-Modified 用哪个?`
+给哪个用哪个，如果两个都给，则只有`Etag`不变，且`Last-Modified`与服务器一致的时候才能返回`304 Not Modified`;
+<img :src="$withBase('/assets/base-31-2.png')" alt="base-31-2">
+:::
+
+## 如果什么缓存策略都没设置，那么浏览器会怎么处理?
+>浏览器会采用一个启发式的算法，通常会取响应头中的 `Date` 减去 `Last-Modified` 值的 `10%` 作为缓存时间。
+## 用户行为对缓存的影响
+>意思是用户行为会如何触发缓存策略
+>- 用户输入`url`，查找`disk cache`，是否有匹配，有则直接使用，没有则发送请求；
+>- 普通刷新（F5）：因为窗口并没有关闭，因此`memory cache` 依然是可用的，会被优先使用（如果匹配的话）。其次才是`disk cache`。
+>- 强制刷新（Ctrl+F5）：浏览器不使用缓存。因此发送请求头部均带有`Cache-Control：no-cache`，服务器直接返回`200`和最新内容；
+
+## 缓存总结
+::: tip 当浏览器需要资源时
+- 1、调用 `Service Worker` 的`fetch`事件响应
+- 2、查看 `memory cache` 
+- 3、查看 `disk cache` ，这里会细分：
+  - 有强缓存且未失效，则使用强制缓存，返回`200`
+  - 有强制缓存已失效，则使用协商缓存，可用返回`304` ，不可用返回新数据和`200`
+- 4、向服务器发送请求，等待响应
+- 5、把响应内容存入 `disk cache`（如果`HTTP`头信息配置可存）
+- 6、把 *响应内容的引用* 存入 `memory cache` （无视`HTTP`头信息的配置）
+- 7、把响应内容存入`Service Worker`的`Cache Storage`（如果`Service Worker`的脚本调用了`cache.put()`）
+:::
+## Transfer-Encoding
+>指定报文主体的传输编码方式
+## HTTP与HTTPS的区别
+::: tip
+`https`协议需要ca证书，免费的证书很少
+`http`协议是明文传输的，而`https`协议是通过`ssl`加密传输的安全性协议；
+`http`与`https`连接方式不同，采用的端口号也不同；
+`http`是无状态协议；`https`协议是通过`SSL+http`协议构建的可进行加密传输、身份认证的网络协议，比`http`安全；
+:::
