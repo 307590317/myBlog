@@ -6,26 +6,26 @@ tags:
 ---
 [[toc]]
 # express的安装与使用
-::: tip express
 [详解可参考阮一峰的解析](http://javascript.ruanyifeng.com/nodejs/express.html#toc0)
+::: tip express
 `express`是`Node`中的一个内置框架，我们可以基于`express`快速搭建一个web服务，并且提供一些供客户端调用的`api`接口，（支持中间件，支持路由处理）：还有一个框架和它类似，叫`koa`；
 
 *安装`express`模块及附属模块*
 
 ```js
 yarn add express body-parser express-session cookie-parser
-//express：express核心框架
-//body-parser：用来快速解析请求主体中的内容
-// express-session/cookie-parser:方便我们在express中操作session的
+//  express：express核心框架
+//  body-parser：用来快速解析请求主体中的内容
+//  express-session/cookie-parser:方便我们在express中操作session的
 ```
 *使用express*
 
 导入后接收的结果是一个函数，可以直接执行的。执行的返回结果还是一个函数，而且有很多自定的方法；(如`listen`方法，`use`方法等)
 ```js
 //使用express模块必须写的内容
-let express=require('express');//导入模块
+let express = require('express');//导入模块
 //执行express方法返回一个函数（要用的方法都定义在express执行返回的函数上面）
-let app=express();
+let app = express();
 //调用listen方法监听一个端口号就可以起服务了
 app.listen(8666,()=>{
   console.log('成功监听8666端口号');
@@ -146,140 +146,153 @@ app.use('/user',(req,res,next)=>{
 ```
 :::
 ### 常用的中间件
->`body-parser`模块
->- 获取请求主体的中间件：可从请求对象中获取请求主体，并且把请求主体转换成对象赋值给req.body的属性
->
->先安装body-parser模块
->然后导入body-parser模块
->```javascript
->let bodyParser=require('body-parser');//第三方中间件
+
+#### `body-parser` 模块
+::: tip body-parser
+- 获取请求主体的中间件：可从请求对象中获取请求主体，并且把请求主体转换成对象赋值给req.body的属性
+
+先安装`body-parser`模块
+然后导入`body-parser`模块
+```js
+let bodyParser=require('body-parser');//第三方中间件
 app.use(bodyParser.urlencoded({extended:true}));
 //使用此中间件可以拿到req.body={usernam:'zfpx,password:'123'}
->```
-###res.end、res.send、res.json的区别
+```
+:::
+### `res.end、res.send、res.json` 的区别
 >都是通过写入响应主体内，向客户端返回内容并结束请求的方法，
->- **`res.end()`**：参数只能是字符串格式的或者buffer格式的
->- **`res.send()`**：可以接收任何类型的参数，比如对象，数字
->- **`res.json()`**：可以接收任何类型的参数，之后转化为JSON格式返回给客户端
->```javascript
+>- `res.end()`：参数只能是字符串格式的或者`buffer`格式的
+>- `res.send()`：可以接收任何类型的参数，比如对象，数字
+>- `res.json()`：可以接收任何类型的参数，之后转化为JSON格式返回给客户端
+```js
 app.post('/signup',(req,res)=>{
-    let body=req.body;
-    console.log(body);
-    //end只能接收字符串格式或者buffer格式的参数
-    // res.end(JSON.stringify(body));
-    //send:和end类似，也是写入响应体，并且结束响应。但是它可以接收任何类型的参数，比如对象，数字
-    // res.send(body);
-    res.json(body);//json方法相当于在中间件中调用了send方法
+  let body=req.body;
+  console.log(body);
+  //end只能接收字符串格式或者buffer格式的参数
+  // res.end(JSON.stringify(body));
+  //send:和end类似，也是写入响应体，并且结束响应。但是它可以接收任何类型的参数，比如对象，数字
+  // res.send(body);
+  res.json(body);//json方法相当于在中间件中调用了send方法
 });
->```
-###静态资源中间件
->在server.js中添加了此中间件之后，客户端访问静态资源文件时的js就不需要我们自己写了
->```javascript
+```
+### 静态资源中间件
+>在`server.js`中添加了此中间件之后，客户端访问静态资源文件时的`js`就不需要我们自己写了
+```js
 let express=require('express');
 let app=express();
 app.use(express.static('./'));//静态文件中间件，express自带的功能
 // './' 意思是基于server.js所在目录作为根路径进行查找；
->```
-###response对象
->原生的
->res.writeHead():重写响应头信息
->res.end():向客户端返回数据，并结束响应；
->**`res.redirect`**
->res.redirect方法允许网址的重定向。
->```javascript
+```
+### `response` 对象
+::: tip 原生的
+`res.writeHead()`:重写响应头信息
+`res.end()`:向客户端返回数据，并结束响应；
+`res.redirect`
+
+`res.redirect`方法允许网址的重定向。
+```js
 response.redirect("/hello/anime");
 response.redirect("http://www.example.com");
 response.redirect(301, "http://www.example.com");
->```
->**`res.sendFile(文件路径及名称，{root:__dirname})`**
->res.sendFile方法用于向客户端发送文件。
->
->**`res.render`**
->res.render方法用于渲染网页模板。
->**`res.statusCode`**：设置状态码
->```javascript
+```
+
+`res.sendFile(文件路径及名称，{root:__dirname})`
+`res.sendFile`方法用于向客户端发送文件。
+
+`res.render`
+`res.render`方法用于渲染网页模板。
+
+`res.statusCode`：设置状态码
+```js
 app.get('/login',(req,res)=>{
-    res.render('hello.ejs',{val:'我很英俊',a:'<h1>我在哪</h1>',school:{name:'zf',age:'8'}});
+  res.render('hello.ejs',{val:'我很英俊',a:'<h1>我在哪</h1>',school:{name:'zf',age:'8'}});
 });
 //上面的代码使用render方法将后面第二个参数中的属性传入到hello.ejs模版中（即可在模版中直接使用对象中的属性），渲染成HTML网页；
->```
-##Express.Router用法
->真实项目中我们为了有效得管理接口，我们会把相同功能体系得接口进行归类，在实现的时候，也会分类实现
->如:
->/user/signin
->/user/signup
->1、创建一个routes文件夹，在这个文件夹中存储所有功能模块的接口信息（分类存储）；
->2、在每一个路由模块中完成API接口的编写
->```javascript
+```
+:::
+## `Express.Router` 用法
+::: tip Express.Router
+真实项目中我们为了有效得管理接口，我们会把相同功能体系得接口进行归类，在实现的时候，也会分类实现
+如:
+- `/user/signin`
+- `/user/signup`
+
+- 1、创建一个`routes`文件夹，在这个文件夹中存储所有功能模块的接口信息（分类存储）；
+- 2、在每一个路由模块中完成`API`接口的编写
+```js
 let express = require('express'),
-    router = express.Router();//=>router和app其实差不多
+router = express.Router();//=>router和app其实差不多
 router.use((req, res, next)=> {
-    console.log(`ok`);
-    next();
+  console.log(`ok`);
+  next();
 });
 router.post(`/signin`, (req, res)=> {
-    res.send('login success');
+  res.send('login success');
 });
 router.post(`/signup`, (req, res)=> {
-    res.send('register success');
+  res.send('register success');
 });
 module.exports = router;//=>把创建的路由导出,方便后续调取使用
->```
->3、在sever中引入并使用
->```javascript
+```
+
+- 3、在sever中引入并使用
+```js
 let express = require('express'),
     app = express();
 app.use(`/user`, require('./routers/user'));
->```
-##express中获取客户端传递的信息
->客户端把信息传递给服务器
->客户端传递给服务器的信息一般都是字符串格式的（JSON字符串或者format-data字符串[xx=xxx&aa=bbb]）
->1、问号传参（一般都是get请求）
->2、设置请求头（cookie等信息传送）
->3、设置请求主体（一般都通过post请求）
+```
+:::
+## `express` 中获取客户端传递的信息
+::: tip 
+客户端把信息传递给服务器
+客户端传递给服务器的信息一般都是字符串格式的（`JSON`字符串或者`format-data`字符串`[xx=xxx&aa=bbb]`）,方式如下：
+- 1、问号传参（一般都是`get`请求）
+- 2、设置请求头（`cookie`等信息传送）
+- 3、设置请求主体（一般都通过`post`请求）
 
->express中如何获取到对应的信息？
->1、获取请求头或问号传参方式传递的数据
->```javascript 
+`express`中如何获取到对应的信息？
+- 1、获取请求头或问号传参方式传递的数据
+```js 
 //http://localhost:8080/user?id=1
 app.get('/user',(req,res)=>{
-//通过req中的query属性就可以获取问号传递的参数值，（获取的结果是个对象）
-    res.send(req.query);
-    console.log(req.headers);//=>通过req的headers可以直接的获取请求头信息(想获取其中的某一个:req.headers.host...)
+  //通过req中的query属性就可以获取问号传递的参数值，（获取的结果是个对象）
+  res.send(req.query);
+  console.log(req.headers);//=>通过req的headers可以直接的获取请求头信息(想获取其中的某一个:req.headers.host...)
 });
->```
->3、获取通过设置请求主体传递的数据
->- 1、我们自己写的获取请求主体内容的方法（下面有express内置的方法处理）
->```javascript
-app.use('/reg',(req,res,next)=>{
-    let str=``;
-    req.on('data',chunk=>{
-        //正在接收请求主体中的内容（一般内容比较多）
-        str+=chunk;
-    });
-    req.on('end',()=>{
-        //接收结束，此时str存储的就是传递进来的信息
-        //客户端传递给服务器的信息一般都是字符串格式的（JSON字符串或者format-data字符串[xx=xxx&aa=bbb]）
-        //真实项目中我们需要把字符串转化为对象（方便操作）
-        //querystring这个内置模块就是把format-data字符串转化为一个对象的
-        let data=require('querystring').parse(str);
-        //把转化后的对象赋给req的自定义属性body上；之后在其他中间件中就可以直接使用了；
-        req.body=data;
-    });
-    next();
+```
+- 2、获取通过设置请求主体传递的数据
+```js
+//  1、我们自己写的获取请求主体内容的方法（下面有·内置的方法处理）
+app.use('/reg',(req,res,next) => {
+  let str = ``;
+  req.on('data',chunk => {
+      //正在接收请求主体中的内容（一般内容比较多）
+      str += chunk;
+  });
+  req.on('end',() => {
+      //接收结束，此时str存储的就是传递进来的信息
+      //客户端传递给服务器的信息一般都是字符串格式的（JSON字符串或者format-data字符串[xx=xxx&aa=bbb]）
+      //真实项目中我们需要把字符串转化为对象（方便操作）
+      //querystring这个内置模块就是把format-data字符串转化为一个对象的
+      let data = require('querystring').parse(str);
+      //把转化后的对象赋给req的自定义属性body上；之后在其他中间件中就可以直接使用了；
+      req.body = data;
+  });
+  next();
 });
 app.post('/query',(req,res)=>{
-    res.send(req.body);//通过req中的body属性就可以获取之前我们处理过的参数值（获取的结果是个对象）
+  res.send(req.body);//通过req中的body属性就可以获取之前我们处理过的参数值（获取的结果是个对象）
 });
->```
->- 2、使用node的第三方模块body-parser拿到请求主体中的内容
->```javascript
-let bodyParster=require('body-parser');
+
+
+//  2、使用 node 的第三方模块 body-parser 拿到请求主体中的内容
+
+let bodyParster = require('body-parser');
 //客户端传递给服务器的信息一般都是字符串格式的（JSON字符串或者format-data字符串[xx=xxx&aa=bbb]）
 app.use(bodyParster.json());//处理JSON字符串
 app.use(bodyParster.urlencoded({extended:true}));//处理format-data格式字符串
 app.post('/signin',(req,res)=>{
-    console.log(req.body);
-    res.send(req.body);
+  console.log(req.body);
+  res.send(req.body);
 });
->```
+```

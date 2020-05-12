@@ -96,3 +96,14 @@ Q:为什么传window，后面不传undefined？
 > https://www.jianshu.com/p/d92b9efe3e6a
 ## 16、Chrome 中文界面下默认会将小于 12px 的文本强制按照 12px 显示,
 >可通过加入 CSS 属性 `-webkit-text-size-adjust: none;` 解决。
+## 17、PC检测、手机机型检测
+```js
+var isPc = /mobile|android|iphone|ipad|phone/i.test(navigator.userAgent)
+
+var isWeixin = /MicroMessenger/i.test(navigator.userAgent);
+var isiPhone = /iPhone|iPod/i.test(navigator.userAgent);
+var isiPad = /iPad/i.test(navigator.userAgent);
+var isAndroid = /Android/i.test(navigator.userAgent);
+var isWeibo = /Weibo/i.test(navigator.userAgent);
+var isIOS = (isiPad || isiPhone);
+```

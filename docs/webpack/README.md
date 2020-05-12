@@ -26,7 +26,8 @@ tags:
 >解析`es7`语法的
 >
 >`npm install babel-preset-stage-0 --save-dev`
-
+## loader
+>`loader`是用来告诉`webpack`如何转化处理非`JS`文件，并且引入到打包出的文件中。
 ### `vue-loader` (解析.vue文件)
 >- 安装 `vue-loader` 来解析.vue文件
 >- 安装 `vue-template-compiler` 用来解析vue模版的
@@ -72,7 +73,9 @@ img.src = page;
 document.body.appendChild(img);
 ```
 :::
-## 打包HTML的插件
+## plugin（插件）
+>`plugin`是辅助`webpack`打包的工具，比如代码混淆、压缩、将代码引入`HTML`等等；
+### 打包HTML的插件
 ::: tip 解析HTML
 插件的作用是以我们自己的`HTML`为模版将打包后的结果自动引入到`html`中，产出到`dist`目录下
 `npm install html-webpack-plugin --save-dev`
@@ -119,7 +122,7 @@ module.exports={
 };
 ```
 :::
-## 开发热更新插件 webpack-dev-sever
+### 开发热更新插件 webpack-dev-sever
 ::: tip webpack-dev-sever
 这个模块内置了服务，可以帮我们启动一个端口号，当代码更新时，可以自动打包（在内存中打包），代码有变化就重新执行
 `npm install webpack-dev-server --save-dev`

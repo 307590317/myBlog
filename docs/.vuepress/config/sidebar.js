@@ -42,7 +42,8 @@ module.exports = {
         "/feBase/base-35",
         "/feBase/base-36",
         "/feBase/base-37",
-        "/feBase/base-38"
+        "/feBase/base-38",
+        "/feBase/base-39"
       ]
     }
   ],
