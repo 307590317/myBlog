@@ -15,4 +15,12 @@ module.exports = [
     text: "React",
     link: "/react/"
   },
+  {
+    text: "Webpack",
+    link: "/webpack/"
+  },
+  {
+    text: "Node",
+    link: "/node/"
+  }
 ];
