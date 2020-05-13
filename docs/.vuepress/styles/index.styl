@@ -33,8 +33,9 @@ blockquote
     border-color: #42b983;
     color #2c3e50
 img
-  display block
+  display inline-block
   margin 10px 0
+  vertical-align middle
 .sidebar
   & > .sidebar-links
     & > li > a.sidebar-link
@@ -75,12 +76,11 @@ strong
       &:before
         position absolute
         top 0
-        left 6.45px
+        left .3rem
         bottom 0;
         content ""
         width: 2px
         background-color #ebedef
-        opacity .5
         z-index -1
       li
         font-size .9rem

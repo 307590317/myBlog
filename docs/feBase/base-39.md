@@ -43,7 +43,7 @@ sidebarDepth: 0
 - 服务端：月线正忙，请稍后再试（`503 Server Unavailable`）
 - 客户端：。。。。好吧，啦啦啦，有新信息么？
 - 服务端：月线正忙，请稍后再试（`503 Server Unavailable`）
-- 客户端：![](https://pic3.zhimg.com/80/7c0cf075c7ee4cc6cf52f4572a4c1c10_hd.jpg)
+- 客户端：<img src="https://pic3.zhimg.com/80/7c0cf075c7ee4cc6cf52f4572a4c1c10_hd.jpg">
 - 然后服务端在一旁忙的要死：冰箱，我要更多的冰箱！更多。。更多。。（我错了。。这又是梗。。）
 :::
 ## 长连接和短连接

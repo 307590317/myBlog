@@ -43,7 +43,10 @@ module.exports = {
         "/feBase/base-36",
         "/feBase/base-37",
         "/feBase/base-38",
-        "/feBase/base-39"
+        "/feBase/base-39",
+        "/feBase/base-40",
+        "/feBase/base-41",
+        "/feBase/base-42"
       ]
     }
   ],
@@ -66,6 +69,16 @@ module.exports = {
         "",
         "/react/react-1",
         "/react/react-2"
+      ]
+    }
+  ],
+  '/ssr/':[
+    {
+      title: 'SSR',
+      collapsable: false,
+      children: [
+        "",
+        "/ssr/ssr-1"
       ]
     }
   ],

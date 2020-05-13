@@ -16,6 +16,10 @@ module.exports = [
     link: "/react/"
   },
   {
+    text: "SSR",
+    link: "/ssr/"
+  },
+  {
     text: "Webpack",
     link: "/webpack/"
   },
