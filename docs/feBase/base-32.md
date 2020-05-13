@@ -21,7 +21,7 @@ sidebarDepth: 0
 >- `Expires`
 >- `Cache-control`
 ### Expires
->`http1.0`的产物，缓存的过期时间，用来指定资源的到期时间，是服务器端的具体时间点（已不推荐使用）。也就是说，<b>`Expires = max-age + 请求时间`</b>，需要和<b>`Last-Modified`</b>结合使用。<b>`Expires`</b>是`Web`服务器响应消息头字段，在响应`http`请求时告诉浏览器在过期时间前浏览器可以直接从浏览器缓存取数据，而无需再次请求。
+>`http1.0`的产物，缓存的过期时间，用来指定资源的到期时间，是服务器端的具体时间点,浏览器发送请求时会根据系统时间和`Expires`的值进行对比，由于是和系统时间作比较，所以会有缓存有效期不准的问题（已不推荐使用）。也就是说，**`Expires = max-age + 请求时间`**，需要和<b>`Last-Modified`</b>结合使用。<b>`Expires`</b>是`Web`服务器响应消息头字段，在响应`http`请求时告诉浏览器在过期时间前浏览器可以直接从浏览器缓存取数据，而无需再次请求。
 ### Cache-Control 
 >`http1.1`的产物，控制缓存的行为<b>`Cache-Control`</b>的默认取值`private`：<b>所有内容只有客户端可以缓存</b>。取值`max-age`时是以秒为单位的。
 ### Expires和Cache-Control的区别
@@ -71,10 +71,3 @@ sidebarDepth: 0
 :::
 ## Transfer-Encoding
 >指定报文主体的传输编码方式
-## HTTP与HTTPS的区别
-::: tip
-`https`协议需要ca证书，免费的证书很少
-`http`协议是明文传输的，而`https`协议是通过`ssl`加密传输的安全性协议；
-`http`与`https`连接方式不同，采用的端口号也不同；
-`http`是无状态协议；`https`协议是通过`SSL+http`协议构建的可进行加密传输、身份认证的网络协议，比`http`安全；
-:::
