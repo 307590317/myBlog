@@ -39,7 +39,8 @@ module.exports = {
         "/feBase/js/32",
         "/feBase/js/33",
         "/feBase/js/34",
-        "/feBase/js/35"
+        "/feBase/js/35",
+        "/feBase/js/36"
       ]
     }
   ],
@@ -53,6 +54,8 @@ module.exports = {
         "/feBase/css/3",
         "/feBase/css/4",
         "/feBase/css/5",
+        "/feBase/css/6",
+        "/feBase/css/7",
       ]
     }
   ],
@@ -69,6 +72,16 @@ module.exports = {
         "/feBase/browser/6",
         "/feBase/browser/7",
         "/feBase/browser/8",
+      ]
+    }
+  ],
+  '/feBase/mini/':[
+    {
+      title: '小程序',
+      collapsable: false,
+      children: [
+        "/feBase/mini/1",
+        "/feBase/mini/2",
       ]
     }
   ],
@@ -121,6 +134,15 @@ module.exports = {
       children: [
         "",
         "/node/node-1"
+      ]
+    }
+  ],
+  '/test/':[
+    {
+      title: '面试题',
+      collapsable: false,
+      children: [
+        "/test/1"
       ]
     }
   ]

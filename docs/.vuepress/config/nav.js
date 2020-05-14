@@ -10,6 +10,7 @@ module.exports = [
       { text: 'Javascript', link: '/feBase/js/' },
       { text: 'Css', link: '/feBase/css/1' },
       { text: '浏览器', link: '/feBase/browser/1' },
+      { text: '小程序', link: '/feBase/mini/1' },
     ]
   },
   {
@@ -31,5 +32,9 @@ module.exports = [
   {
     text: "Node",
     link: "/node/"
+  },
+  {
+    text: "面试题",
+    link: "/test/1"
   }
 ];
