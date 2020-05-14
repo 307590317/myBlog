@@ -5,7 +5,12 @@ module.exports = [
   },
   {
     text: "前端基础",
-    link: "/feBase/"
+    ariaLabel: 'Language Menu',
+    items: [
+      { text: 'Javascript', link: '/feBase/js/' },
+      { text: 'Css', link: '/feBase/css/1' },
+      { text: '浏览器', link: '/feBase/browser/1' },
+    ]
   },
   {
     text: "Vue",
