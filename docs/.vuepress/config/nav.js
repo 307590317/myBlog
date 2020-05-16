@@ -15,11 +15,11 @@ module.exports = [
   },
   {
     text: "Vue",
-    link: "/vue/"
+    link: "/vue/1"
   },
   {
     text: "React",
-    link: "/react/"
+    link: "/react/1"
   },
   {
     text: "SSR",

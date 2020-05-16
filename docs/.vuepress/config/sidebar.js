@@ -91,8 +91,8 @@ module.exports = {
       collapsable: false,
       children: [
         "",
-        "/vue/vue-1",
-        "/vue/vue-2",
+        "/vue/1",
+        "/vue/2",
       ]
     }
   ],
@@ -101,9 +101,8 @@ module.exports = {
       title: 'React',
       collapsable: false,
       children: [
-        "",
-        "/react/react-1",
-        "/react/react-2"
+        "/react/1",
+        "/react/2"
       ]
     }
   ],
@@ -113,7 +112,7 @@ module.exports = {
       collapsable: false,
       children: [
         "",
-        "/ssr/ssr-1"
+        "/ssr/1"
       ]
     }
   ],
@@ -133,7 +132,7 @@ module.exports = {
       collapsable: false,
       children: [
         "",
-        "/node/node-1"
+        "/node/1"
       ]
     }
   ],
