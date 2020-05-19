@@ -103,7 +103,9 @@ module.exports = {
       collapsable: false,
       children: [
         "/react/1",
-        "/react/2"
+        "/react/2",
+        "/react/3",
+        "/react/4"
       ]
     }
   ],
