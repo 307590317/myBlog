@@ -15,7 +15,7 @@ module.exports = [
   },
   {
     text: "Vue",
-    link: "/vue/1"
+    link: "/vue/"
   },
   {
     text: "React",
