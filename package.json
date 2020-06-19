@@ -12,7 +12,6 @@
   "author": "Yu Zhao",
   "license": "MIT",
   "devDependencies": {
-    "vuepress": "^1.5.0",
-    "watchpack": "1.6.1"
+    "vuepress": "^1.5.2"
   }
 }
