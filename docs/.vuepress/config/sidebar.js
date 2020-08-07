@@ -125,7 +125,8 @@ module.exports = {
       collapsable: false,
       children: [
         "",
-        // "/webpack/wp-1"
+        "/webpack/1",
+        "/webpack/2"
       ]
     }
   ],
