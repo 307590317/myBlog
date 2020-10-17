@@ -56,6 +56,7 @@ module.exports = {
         "/feBase/css/5",
         "/feBase/css/6",
         "/feBase/css/7",
+        "/feBase/css/8"
       ]
     }
   ],
