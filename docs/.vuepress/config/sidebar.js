@@ -131,6 +131,16 @@ module.exports = {
       ]
     }
   ],
+  '/ES6/':[
+    {
+      title: 'ES6',
+      collapsable: false,
+      children: [
+        "/ES6/1",
+        "/ES6/2"
+      ]
+    }
+  ],
   '/node/':[
     {
       title: 'Node',
