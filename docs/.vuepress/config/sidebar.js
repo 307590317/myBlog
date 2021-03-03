@@ -156,7 +156,11 @@ module.exports = {
       title: '面试题',
       collapsable: false,
       children: [
-        "/test/1"
+        "/test/1",
+        "/test/2",
+        "/test/3",
+        "/test/4",
+        "/test/5"
       ]
     }
   ]
