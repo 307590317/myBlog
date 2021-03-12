@@ -30,6 +30,10 @@ module.exports = [
     link: "/webpack/"
   },
   {
+    text: "ES6",
+    link: "/ES6/1"
+  },
+  {
     text: "Node",
     link: "/node/"
   },

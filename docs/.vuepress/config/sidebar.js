@@ -56,6 +56,7 @@ module.exports = {
         "/feBase/css/5",
         "/feBase/css/6",
         "/feBase/css/7",
+        "/feBase/css/8"
       ]
     }
   ],
@@ -130,6 +131,16 @@ module.exports = {
       ]
     }
   ],
+  '/ES6/':[
+    {
+      title: 'ES6',
+      collapsable: false,
+      children: [
+        "/ES6/1",
+        "/ES6/2"
+      ]
+    }
+  ],
   '/node/':[
     {
       title: 'Node',
@@ -145,7 +156,11 @@ module.exports = {
       title: '面试题',
       collapsable: false,
       children: [
-        "/test/1"
+        "/test/1",
+        "/test/2",
+        "/test/3",
+        "/test/4",
+        "/test/5"
       ]
     }
   ]
