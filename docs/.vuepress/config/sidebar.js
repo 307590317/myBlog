@@ -127,7 +127,8 @@ module.exports = {
       children: [
         "",
         "/webpack/1",
-        "/webpack/2"
+        "/webpack/2",
+        "/webpack/3"
       ]
     }
   ],
