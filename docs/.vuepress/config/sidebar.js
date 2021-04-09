@@ -73,6 +73,7 @@ module.exports = {
         "/feBase/browser/6",
         "/feBase/browser/7",
         "/feBase/browser/8",
+        "/feBase/browser/9"
       ]
     }
   ],
