@@ -214,22 +214,22 @@ server.listen(9999, ()=> {
 - `boolean`:为true时，会默认的把问号传参的值格式化（转换为对象键值对的方式来存储）默认为false；
 ```js
 let url = require('url');
-let str = 'http://www.zhufengpeixun.cn:80/index.html?lx=12&age#aa';
+let str = 'https://www.taobao.com:443/index.html?lx=12&age#aa';
 console.log(url.parse(str, true));
 //=>结果
 Url {
-  protocol: 'http:', //=>协议
+  protocol: 'https:', //=>协议
   slashes: true,
   auth: null,
-  host: 'www.zhufengpeixun.cn:80',
-  port: '80',  //=>端口
-  hostname: 'www.zhufengpeixun.cn',  //=>域名
+  host: 'www.taobao.com:80',
+  port: '443',  //=>端口
+  hostname: 'www.taobao.com',  //=>域名
   hash: '#aa',  //=>哈希值
   search: '?lx=12&age',
   query: { lx: '12', age: '' },  //=>问号传参
   pathname: '/index.html',  //=>请求文件的路径名称
   path: '/index.html?lx=12&age',
-  href: 'http://www.zhufengpeixun.cn:80/index.html?lx=12&age#aa' 
+  href: 'https://www.taobao.com:443/index.html?lx=12&age#aa' 
 }
 ```
 :::

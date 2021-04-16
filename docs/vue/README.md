@@ -41,7 +41,7 @@ sidebarDepth: 0
 
 先使用`Object.defineProperty`方法劫持数据的`get`和`set`属性（`get`用来依赖收集，`setter`用来派发更新），当数据发生变化时，通过发布订阅模式来通知订阅者，触发对应的监听回调。
 ```js
-	let  obj = {name:'zhufeng',age:9};//数据
+	let  obj = {name:'ceshi',age:9};//数据
   let temp = {name:"lily"};//借助中间对象
   let input1 = document.getElementById("box2");//视图
   //对某一个对象使用了Object.defineProperty方法之后就要写对应的get和set方法了，不然无法像操作普通对象一样访问或者设置它的属性
@@ -215,7 +215,7 @@ let vm = new Vue({
 let vm=new Vue({
   el:'#app-3',
   data:{
-    msg:'zhufeng'，
+    msg:'ceshi'，
     a:{}
   }
   methods:{}
