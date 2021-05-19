@@ -19,7 +19,8 @@ module.exports = {
     editLinks: false,
     algolia: {
       apiKey: '89b040d15418343620172b26763c0a5a',
-      indexName: 'zhaoyu'
+      indexName: 'zhaoyu',
+      startUrls: ['https://www.zhaoyu.link/']
     }
   }
 };
