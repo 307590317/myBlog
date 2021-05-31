@@ -97,7 +97,8 @@ module.exports = {
         "/vue/2",
         "/vue/3",
         "/vue/4",
-        "/vue/5",
+        "/vue/watch",
+        "/vue/computed",
       ]
     }
   ],
