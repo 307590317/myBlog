@@ -23,6 +23,7 @@ sidebarDepth: 0
   });
 </script>
 ```
+
 ::: tip
 对于传入的`el`或者`template`属性，最后都会被解析成`render`函数，以便后面更新视图。
 :::
@@ -39,7 +40,7 @@ import { compileToFunction } from "./compiler/index";
 export function initMixin(Vue) {
   Vue.prototype._init = function(options) {
     // el,data
-    const vm = this
+    const vm = this;
     vm.$options = options; // 后面会对options进行扩展操作
 
     // 对数据进行初始化 watch computed props data ...
@@ -78,147 +79,265 @@ export function initMixin(Vue) {
 ```
 
 ::: tip render
-`initMixin`中会集中对`el`属性和`template`属性做处理，统一处理成`render`函数，方便后续更新视图时直接调用生成真实DOM，替换页面的内容
+`initMixin`中会集中对`el`属性和`template`属性做处理，统一处理成`render`函数，方便后续更新视图时直接调用生成真实 DOM，替换页面的内容
 :::
 
-## 核心方法compileToFunction
+## 核心方法 compileToFunction
+
 ::: tip compileToFunction
 `compileToFunction`方法是将模板转化成`render`函数的核心方法
 :::
-```js
-// src/state.js
-function createComputedGetter(key) {
-  return function() {
-    const watcher = this._computedWatchers && this._computedWatchers[key];
-    if (watcher) {
-      // 如果其他的属性值改变了，则重新取值（其他值改变后，dirty会变为true）
-      if (watcher.dirty) {
-        watcher.evaluate();
-      }
 
-      return watcher.value;
-    }
+```js
+// src/compiler/index.js
+
+import { generate } from "./generate";
+import { parserHTML } from "./parser";
+
+export function compileToFunction(template) {
+  // 1.把html代码转成ast语法树  ast用来描述代码本身形成树结构 语法不存在的属性无法描述
+  let ast = parserHTML(template);
+
+  // 生成代码
+  let code = generate(ast);
+
+  let render = new Function(`with(this){return ${code}}`); // code 中会用到数据 数据在vm上
+
+  return render;
+
+  // html=> ast（只能描述语法 语法不存在的属性无法描述） => render函数 + (with + new Function) => 虚拟dom （增加额外的属性） => 生成真实dom
+}
+```
+
+::: tip compileToFunction
+`compileToFunction`是编译的核心方法，会先将`html`字符串转化为`ast`语法树，然后根据`ast`生成`render`函数
+:::
+
+## parserHTML(将 HTML 转换成 ast 语法树)
+
+```js
+// src/compiler/parser.js
+
+//  匹配HTML中内容的正则
+const ncname = `[a-zA-Z_][\\-\\.0-9_a-zA-Z]*`; // 标签名
+const qnameCapture = `((?:${ncname}\\:)?${ncname})`; //  用来获取的标签名的 match后的索引为1的
+const startTagOpen = new RegExp(`^<${qnameCapture}`); // 匹配标签的开始
+const startTagClose = /^\s*(\/?)>/; //  匹配标签的结束   />   <div/>
+const endTag = new RegExp(`^<\\/${qnameCapture}[^>]*>`); // 匹配闭合标签的
+//       匹配属性  a=b  a="b"  a='b'
+const attribute =
+  /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
+
+// 将我们的html =》 词法解析  （开始标签 ， 结束标签，属性，文本）
+
+// 将解析后的结果 组装成一个树结构  栈
+function createAstElement(tagName, attrs) {
+  return {
+    tag: tagName,
+    type: 1, // 1表示元素，3表示文本
+    children: [],
+    parent: null,
+    attrs,
   };
 }
-```
-
-::: tip createComputedGetter
-`createComputedGetter`是主要的判断计算属性是否需要重新取值的方法，当`watcher`的`dirty`属性为`true`，代表计算属性需要重新取值。
-:::
-
-## 多个 watcher 的收集
-
-```js
-// src/observer/dep.js
-
-// 最初采用Dep.target来存放watcher，这样只能存一个
-Dep.target = null;
-
-// 增加栈结构存放多个watcher
+let root = null;
+// 采用栈结构存放遇到的标签，1、为了拿到父标签。2、验证标签是否匹配
 let stack = [];
 
-export function pushTarget(watcher) {
-  Dep.target = watcher;
-  stack.push(watcher);
+// 开始标签
+function start(tagName, attributes) {
+  // 在遇到新的开始标签时，栈中的最后一个标签就是当前开始标签的父元素
+  let parent = stack[stack.length - 1];
+  let element = createAstElement(tagName, attributes);
+  if (!root) {
+    root = element;
+  }
+  if (parent) {
+    element.parent = parent; // 当放入栈中时 继续父亲是谁
+    parent.children.push(element);
+  }
+  stack.push(element);
 }
-export function popTarget() {
-  stack.pop();
-  Dep.target = stack[stack.length - 1]; // 取栈中最后一个watcher（上一个Dep.target的watcher）
+
+// 闭合标签
+function end(tagName) {
+  // 遇到闭合标签就把与之对应的开始标签从栈中弹出
+  let last = stack.pop();
+
+  // 如果弹出的标签名与当前匹配的闭合标签不匹配，表示标签出错了
+  if (last.tag !== tagName) {
+    throw new Error("标签有误");
+  }
 }
+
+// 处理文本
+function chars(text) {
+  // 去掉空格
+  text = text.replace(/\s/g, "");
+  let parent = stack[stack.length - 1];
+  if (text) {
+    parent.children.push({
+      type: 3, // 文本类型为3
+      text,
+    });
+  }
+}
+
+export function parserHTML(html) {
+  function advance(len) {
+    html = html.substring(len);
+  }
+
+  // 匹配开始标签并解析属性
+  function parseStartTag() {
+    const start = html.match(startTagOpen);
+    if (start) {
+      const match = {
+        tagName: start[1],
+        attrs: [],
+      };
+      // 删掉解析完的字符
+      advance(start[0].length);
+      let end;
+      // 如果没有遇到标签结尾就不停的解析
+      let attr;
+      // 如果没有匹配到标签结尾（>） 并且 匹配到了属性
+      while (!(end = html.match(startTagClose)) && (attr = html.match(attribute))) {
+        match.attrs.push({
+          name: attr[1],
+          value: attr[3] || attr[4] || attr[5],
+        });
+        advance(attr[0].length);
+      }
+      if (end) {
+        advance(end[0].length);
+      }
+      return match;
+    }
+    return false; // 不是开始标签
+  }
+
+  while (html) { // 解析到没有内容为止
+    let textEnd = html.indexOf("<"); 
+    // 如果<在第一个 那么证明接下来可能是标签（开始或结束标签），也可能是文本符号
+    if (textEnd == 0) {
+      // 解析开始标签
+      const startTagMatch = parseStartTag(html);
+
+      // 是开始标签
+      if (startTagMatch) {
+        start(startTagMatch.tagName, startTagMatch.attrs);
+        continue;
+      }
+
+      // 解析结束标签
+      const endTagMatch = html.match(endTag);
+
+      // 是结束标签
+      if (endTagMatch) {
+        end(endTagMatch[1]);
+        advance(endTagMatch[0].length);
+        continue;
+      }
+    }
+   
+    let text; // {{name}}</div>
+    // <大于0代表有文本 解析文本
+    if (textEnd > 0) {
+      text = html.substring(0, textEnd);
+    }
+    if (text) {
+      // 处理文本
+      chars(text);
+      advance(text.length);
+    }
+  }
+
+  return root;
+}
+
 ```
 
-::: tip
-最初只有渲染`watcher`，所以不需要栈结构。当计算属性`watcher`引入后，计算属性依赖的值不只要收集计算属性`watcher`，还要收集渲染`watcher`，以便依赖值更新后通知渲染`watcher`更新视图对计算属性重新取值。此时就需要引入栈结构来存放多个`watcher`。
+::: tip parserHTML
+主要解析`HTML`的方法，采用解析完一部分就删除的规则，正则匹配的方式，解析`HTML`中的标签、标签属性、文本，并建立父子关系，最终生成`ast`元素对象 `{ tag:'div',type:1,children:[{ type:3,text:'{{name}}'}], parent:undefined,attrs: [{name:'id',value:'app'}]}`
 :::
 
-## Watcher 类的改造
+## 将ast元素对象转化为代码
 
 ```js
-// src/observer/watcher.js
-import { popTarget, pushTarget } from "./dep";
-import { queueWatcher } from "./scheduler";
+// src/compiler/generate.js
 
-let id = 0;
-class Watcher {
-  constructor(vm, exprOrFn, cb, options) {
-    // this.vm = vm;
-    // this.exprOrFn = exprOrFn;
-    // this.user = !!options.user;
-    this.lazy = !!options.lazy; // 是不是计算属性watcher
-    this.dirty = this.lazy; //计算属性watcher的更新标识（true：需要更新，false：不更新）
-    // this.cb = cb;
-    // this.options = options;
-    // this.id = id++;
-    // this.deps = [];
-    // this.depsId = new Set();
+const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g; // 匹配带有大括号的内容 {{aaaaa}}
 
-    // if (typeof exprOrFn == "string") {
-    //   this.getter = function() {
-    //     let path = exprOrFn.split(".");
-    //     let obj = vm;
-    //     for (let i = 0; i < path.length; i++) {
-    //       obj = obj[path[i]];
-    //     }
-    //     return obj;
-    //   };
-    // } else {
-    //   this.getter = exprOrFn;
-    // }
+// { tag:'div',type:1,children:[{ type:3,text:'{{name}}'}], parent:undefined,attrs: [{name:'id',value:'app'}]} =》 字符串  _c('div',{id:'app',a:1},'hello')
 
-    // 如果是计算属性watcher，默认不需要取值
-    this.value = this.lazy ? undefined : this.get();
-  }
-  get() {
-    pushTarget(this); // Dep.target = watcher
-    const value = this.getter.call(this.vm); // render() 方法会去vm上取值 vm._update(vm._render)
-    popTarget(); // Dep.target = null; 如果Dep.target有值说明这个变量在模板中使用了
-
-    return value;
-  }
-  update() {
-    // 计算属性依赖的值更新了会通知计算属性watcher更新
-    // 如果是计算属性watcher，就把dirty改为true  代表计算属性需要重新取值
-    if(this.lazy){
-      this.dirty = true
-    }else{
-      queueWatcher(this);
+function genProps(attrs) {
+  // [{name:'xxx',value:'xxx'},{name:'xxx',value:'xxx'}]
+  let str = "";
+  for (let i = 0; i < attrs.length; i++) {
+    let attr = attrs[i];
+    if (attr.name === "style") {
+      // color:red;background:blue
+      let styleObj = {};
+      attr.value.replace(/([^;:]+)\:([^;:]+)/g, function () {
+        styleObj[arguments[1]] = arguments[2];
+      });
+      attr.value = styleObj;
     }
+    str += `${attr.name}:${JSON.stringify(attr.value)},`;
   }
-  // 计算属性重新取值方法
-  evaluate(){
-    this.value = this.get()
-    this.dirty = false
-  },
-  // 计算属性watcher存了依赖的属性的dep，当Dep.target上还有值时，需要依赖的值去收集渲染watcher
-  depend(){
-    let i = this.deps.length
-    while(i--){
-      this.deps[i].depend()
-    }
-  },
-  // run() {
-  //   let newValue = this.get();
-  //   let oldValue = this.value;
-  //   this.value = newValue;
-  //   if (this.user) {
-  //     if (newVal !== oldVal || isObject(newVal)) {
-  //       this.cb.call(this.vm, newVal, oldVal);
-  //     }
-  //   } else {
-  //     this.cb.call(this.vm);
-  //   }
-  // }
-  // addDep(dep) {
-  //   let id = dep.id;
-  //   if (!this.depsId.has(id)) {
-  //     this.depsId.add(id);
-  //     this.deps.push(dep);
-  //     dep.addSub(this);
-  //   }
-  // }
+  return `{${str.slice(0, -1)}}`;
 }
 
-export default Watcher;
+function gen(el) {
+  if (el.type == 1) {
+    // element = 1 text = 3
+    return generate(el);
+  } else {
+    let text = el.text;
+    if (!defaultTagRE.test(text)) {
+      return `_v('${text}')`;
+    } else {
+      // 'hello' + arr + 'world'    hello {{arr}} {{aa}} world
+      let tokens = [];
+      let match;
+      let lastIndex = (defaultTagRE.lastIndex = 0); // CSS-LOADER 原理一样
+      while ((match = defaultTagRE.exec(text))) {
+        // 看有没有匹配到
+        let index = match.index; // 开始索引
+        if (index > lastIndex) {
+          tokens.push(JSON.stringify(text.slice(lastIndex, index)));
+        }
+        tokens.push(`_s(${match[1].trim()})`); // JSON.stringify()
+        lastIndex = index + match[0].length;
+      }
+      if (lastIndex < text.length) {
+        tokens.push(JSON.stringify(text.slice(lastIndex)));
+      }
+      return `_v(${tokens.join("+")})`;
+    }
+  }
+}
+
+function genChildren(el) {
+  let children = el.children; // 获取儿子
+  if (children) {
+    return children.map((c) => gen(c)).join(",");
+  }
+  return false;
+}
+
+export function generate(el) {
+  //  _c('div',{id:'app',a:1},_c('span',{},'world'),_v())
+  // 遍历树 将树拼接成字符串
+  let children = genChildren(el);
+  let code = `_c('${el.tag}',${
+    el.attrs.length ? genProps(el.attrs) : "undefined"
+  }${children ? `,${children}` : ""})`;
+
+  return code;
+}
+
 ```
 
 ::: tip Watcher 改造
