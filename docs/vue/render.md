@@ -271,11 +271,13 @@ const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g; // 匹配带有大括号的内�
 
 // { tag:'div',type:1,children:[{ type:3,text:'{{name}}'}], parent:undefined,attrs: [{name:'id',value:'app'}]} =》 字符串  _c('div',{id:'app',a:1},'hello')
 
+// 循环属性生成 属性 code
 function genProps(attrs) {
   // [{name:'xxx',value:'xxx'},{name:'xxx',value:'xxx'}]
   let str = "";
   for (let i = 0; i < attrs.length; i++) {
     let attr = attrs[i];
+    // 样式需要单独处理
     if (attr.name === "style") {
       // color:red;background:blue
       let styleObj = {};
@@ -290,27 +292,36 @@ function genProps(attrs) {
 }
 
 function gen(el) {
+  // 判断节点类型  1：元素节点  3：文本节点
   if (el.type == 1) {
-    // element = 1 text = 3
+    // 递归生成元素code
     return generate(el);
   } else {
     let text = el.text;
+    // 没有双括号直接当文本处理
     if (!defaultTagRE.test(text)) {
       return `_v('${text}')`;
     } else {
-      // 'hello' + arr + 'world'    hello {{arr}} {{aa}} world
+      // 存在双括号
+      // 'hello' + arr + 'world'    hello {{arr}} world
       let tokens = [];
       let match;
+      // exec匹配时对于带有全局修饰符g的，第一次匹配到时，下次再匹配时是从上次匹配到的值索引之后开始匹配
+      // 由于我们每次匹配都是用的共用的正则 defaultTagRE，所以每次调用gen  需要处理{{}}时都需要重置 lastIndex
       let lastIndex = (defaultTagRE.lastIndex = 0); // CSS-LOADER 原理一样
+      // 如果没有匹配到，那么match 为 null
       while ((match = defaultTagRE.exec(text))) {
-        // 看有没有匹配到
-        let index = match.index; // 开始索引
+        // 匹配到的值所在的索引
+        let index = match.index;
         if (index > lastIndex) {
+          // 将字符串开头到 {{}} 之前的字符 截取放入tokens
           tokens.push(JSON.stringify(text.slice(lastIndex, index)));
         }
-        tokens.push(`_s(${match[1].trim()})`); // JSON.stringify()
+        tokens.push(`_s(${match[1].trim()})`); // 拿到{{ }}中的内容 arr
+        // 更新索引
         lastIndex = index + match[0].length;
       }
+      // 当匹配不到{{}}时，并且后面还有字符时，将剩余的字符直接
       if (lastIndex < text.length) {
         tokens.push(JSON.stringify(text.slice(lastIndex)));
       }
@@ -319,16 +330,17 @@ function gen(el) {
   }
 }
 
+// 循环子节点生成code
 function genChildren(el) {
   let children = el.children; // 获取儿子
   if (children) {
-    return children.map((c) => gen(c)).join(",");
+    return children.map(c => gen(c)).join(",");
   }
   return false;
 }
 
+// 递归生成code: _c('div',{id:'app',a:1},_c('span',{},'world'),_v())
 export function generate(el) {
-  //  _c('div',{id:'app',a:1},_c('span',{},'world'),_v())
   // 遍历树 将树拼接成字符串
   let children = genChildren(el);
   let code = `_c('${el.tag}',${
