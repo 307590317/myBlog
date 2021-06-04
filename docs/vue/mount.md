@@ -243,6 +243,7 @@ function updateProperties(vnode) {
 ```
 ::: tip patch
 `_update`中将虚拟`DOM`转化成真实`DOM`的核心方法就是 `patch`， 首次渲染和后续视图更新都用这一个方法。只是首次渲染的时候传的第一个参数是真实`DOM`. 首次渲染思路就是根据虚拟`dom(vnode)`，调用原生`js`方法生成真实`dom`节点，之后替换掉 `el` 选项的位置
+:::
 
 ## 将扩展的_render 和_update方法混入
 
