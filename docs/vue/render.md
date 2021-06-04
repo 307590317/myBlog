@@ -6,15 +6,22 @@ sidebarDepth: 0
 [[toc]]
 
 # Vue 模板编译源码解析
+::: tip
+此篇主要讲了根据传入的元素或者模板(`template:'<div id="a">{{name}}</div>'`)，拿到`html`字符串，再根据正则将`html`字符串编译成`ast`对象，再由`ast`对象转化为`code`，最后采用`new Function + with`的方式根据`code`生成`render`函数的过程
+
+根据`el`或`template`拿到 `HTML`字符串 -> 将`HTML`字符串转化为`ast对象` -> 根据`ast对象`生成`code` -> 用`code`生成`render`函数
+:::
 
 ```html
-<div id="app">{{age}}</div>
+<div id="app">
+  hello {{ name }} world
+</div>
 
 <script>
   const vm = new Vue({
     el: "#app",
     data: {
-      name: 100,
+      name: 'mrzhao',
     },
     // render(h) {
     //   return h('div',{id:'a'},'mrzhao')
@@ -70,6 +77,7 @@ export function initMixin(Vue) {
       }
       // 最后需要把template转换成render函数
       let render = compileToFunction(template);
+      // 生成render函数后挂载到vm的options属性上
       options.render = render;
     }
     // options.render 就是渲染函数
@@ -95,10 +103,11 @@ import { generate } from "./generate";
 import { parserHTML } from "./parser";
 
 export function compileToFunction(template) {
+
   // 1.把html代码转成ast语法树  ast用来描述代码本身形成树结构 语法不存在的属性无法描述
   let ast = parserHTML(template);
 
-  // 生成代码
+  // 拿到ast对象生成code
   let code = generate(ast);
 
   let render = new Function(`with(this){return ${code}}`); // code 中会用到数据 数据在vm上
@@ -241,7 +250,7 @@ export function parserHTML(html) {
       }
     }
    
-    let text; // {{name}}</div>
+    let text; // {{name}} world</div>
     // <大于0代表有文本 解析文本
     if (textEnd > 0) {
       text = html.substring(0, textEnd);
@@ -259,7 +268,7 @@ export function parserHTML(html) {
 ```
 
 ::: tip parserHTML
-主要解析`HTML`的方法，采用解析完一部分就删除的规则，正则匹配的方式，解析`HTML`中的标签、标签属性、文本，并建立父子关系，最终生成`ast`元素对象 `{ tag:'div',type:1,children:[{ type:3,text:'{{name}}'}], parent:undefined,attrs: [{name:'id',value:'app'}]}`
+主要解析`HTML`的方法，采用解析完一部分就删除的规则，正则匹配的方式，解析`HTML`中的标签、标签属性、文本，并建立父子关系，最终生成`ast`元素对象 `{ tag:'div',type:1,children:[{ type:3,text:'hello {{name}} world'}], parent:undefined,attrs: [{name:'id',value:'app'}]}`
 :::
 
 ## 将ast元素对象转化为代码
@@ -269,7 +278,7 @@ export function parserHTML(html) {
 
 const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g; // 匹配带有大括号的内容 {{aaaaa}}
 
-// { tag:'div',type:1,children:[{ type:3,text:'{{name}}'}], parent:undefined,attrs: [{name:'id',value:'app'}]} =》 字符串  _c('div',{id:'app',a:1},'hello')
+// { tag:'div',type:1,children:[{ type:3,text:'hello {{name}} world'}], parent:undefined,attrs: [{name:'id',value:'app'}]} =》 字符串  _c('div',{id:'app'},_v('hello' + _s(name) + 'world'))
 
 // 循环属性生成 属性 code
 function genProps(attrs) {
@@ -303,7 +312,7 @@ function gen(el) {
       return `_v('${text}')`;
     } else {
       // 存在双括号
-      // 'hello' + arr + 'world'    hello {{arr}} world
+      // 'hello' + name + 'world'    hello {{name}} world
       let tokens = [];
       let match;
       // exec匹配时对于带有全局修饰符g的，第一次匹配到时，下次再匹配时是从上次匹配到的值索引之后开始匹配
@@ -317,7 +326,7 @@ function gen(el) {
           // 将字符串开头到 {{}} 之前的字符 截取放入tokens
           tokens.push(JSON.stringify(text.slice(lastIndex, index)));
         }
-        tokens.push(`_s(${match[1].trim()})`); // 拿到{{ }}中的内容 arr
+        tokens.push(`_s(${match[1].trim()})`); // 拿到{{ }}中的内容 name
         // 更新索引
         lastIndex = index + match[0].length;
       }
@@ -339,7 +348,7 @@ function genChildren(el) {
   return false;
 }
 
-// 递归生成code: _c('div',{id:'app',a:1},_c('span',{},'world'),_v())
+// 递归生成code: _c('div',{id:'app'},_v('hello' + _s(name) + 'world'))
 export function generate(el) {
   // 遍历树 将树拼接成字符串
   let children = genChildren(el);
@@ -352,41 +361,31 @@ export function generate(el) {
 
 ```
 
-::: tip Watcher 改造
-1、对计算属性`watcher(options.lazy = true)`增加`lazy、dirty`属性，`lazy`表示计算属性`watcher`，`dirty`表示计算属性`watcher`是否需要重新取值。计算属性`watcher`在初始化时是不需要调用`this.get`取值的
-2、计算属性依赖的值更新了会通知计算属性`watcher`更新（`update`方法），此时需要把计算属性`watcher`的`dirty`设为`true`，这样下次计算属性取值时就会更新值。
-3、`evaluate`：计算属性`watcher`更新值的方法
-4、`depend`：计算属性`watcher`存了依赖的属性的`dep`，当`Dep.target`上还有值时，需要依赖的属性去收集渲染`watcher`
+::: tip 生成code
+拿到生成的`ast`对象，`ast`对象转化成类似`_c('div',{id:'app'},_v('hello' + _s(name) + 'world'))`这样的字符串
 :::
 
-## 再次修改 createComputedGetter
+## 拿到code生成render函数
 
 ```js
-// src/state.js
-function createComputedGetter(key) {
-  return function() {
-    const watcher = this._computedWatchers && this._computedWatchers[key];
-    if (watcher) {
-      // if (watcher.dirty) {
-      //   watcher.evaluate();
-      // }
+// src/compiler/index.js
 
-      // Dep.target存在则说明存在渲染watcher，计算属性依赖的值也需要收集渲染watcher，方便后续值改变了更新视图
-      if (Dep.target) {
-        watcher.depend();
-      }
-      // return watcher.value;
-    }
-  };
+import { generate } from "./generate";
+import { parserHTML } from "./parser";
+
+export function compileToFunction(template) {
+
+  // 1.把html代码转成ast语法树  ast用来描述代码本身形成树结构 语法不存在的属性无法描述
+  // let ast = parserHTML(template);
+
+  // 拿到ast对象生成code
+  let code = generate(ast);
+  // 模板引擎基本用的都是 new Function + with的方式将字符串转换成函数
+  // 使用with语法改变作用域中的默认对象为this，后续所有的引用都指向this对象，会去this上找对应的属性，不用添加命名空间，  之后调用render函数可以使用call改变this 方便code里面的变量取值 比如 name值就变成了this.name
+
+  let render = new Function(`with(this){return ${code}}`); // code 中会用到数据 数据在vm上
+  // render.call(vm)  相当于 vm.name 
+  return render;
 }
+
 ```
-
-::: tip createComputedGetter
-计算属性本身并没有走`observe`方法进行观测，所以并没有`dep`，并不会去收集渲染`watcher`。
-
-计算属性依赖的值比如`firstName`，只会收集计算属性`fullName`的`watcher`，如果`firstName`没有取过值（`get`时才会做依赖收集），就不会收集渲染`watcher`。当`firstName`发生变化后，只会通知计算属性`watcher`调用`update`方法将`ditry`属性改为`true`，但是没有收集渲染`watcher`，不会触发视图更新，计算属性也就不会重新取值。
-
-所以需要让依赖的属性也收集渲染`watcher`，依赖的值改变了之后不仅要通知计算属性`watcher`将`ditry`改为`true`，还需要通知渲染`watcher`更新视图，对计算属性`fullName`重新取值。
-
-在计算属性首次取值时，会走劫持后的`createComputedGetter`包装后的返回函数，对应的`watcher`的`dirty`属性为`true`，调用`evaluate`方法，内部会走`get`方法。此时依赖值将收集计算属性`watcher`，之后调用`popTarget`将`Dep.target`设为栈中上一个`watcher`。此时需要调用`watcher.depend`让依赖值收集渲染`watcher`。
-:::

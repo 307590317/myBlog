@@ -98,6 +98,8 @@ module.exports = {
         "/vue/3",
         "/vue/defineReactive",
         "/vue/render",
+        "/vue/mount",
+        "/vue/observer",
         "/vue/watch",
         "/vue/computed",
       ]
