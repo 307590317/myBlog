@@ -100,6 +100,7 @@ module.exports = {
         "/vue/render",
         "/vue/mount",
         "/vue/observer",
+        "/vue/nextTick",
         "/vue/watch",
         "/vue/computed",
       ]

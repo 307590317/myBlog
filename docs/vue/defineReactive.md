@@ -126,7 +126,6 @@ function proxy(vm, source, key) {
 
 ```js
 // src/observer/index.js
-import { arrayMethods } from "./array";
 
 class Observer {
   constructor(data) {

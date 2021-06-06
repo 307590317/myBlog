@@ -228,6 +228,7 @@ class Dep {
 }
 
 // Dep类的静态属性，只有一个
+/* 
 Dep.target = null;
 
 export function pushTarget(watcher) {
@@ -237,17 +238,48 @@ export function pushTarget(watcher) {
 export function popTarget() {
   Dep.target = null;
 }
-
+ */
 export default Dep;
 ```
 ::: tip 
 此时对象的依赖收集已经完成了，但是对于数组类型的值，走的不是`defineReactive`方法，所以还需要对数组类型的数据做额外的处理，让数组也进行依赖收集。
 :::
 
-## 数组的依赖收集
+## 数组的依赖收集(Observer升级)
 ```js
-import { isObject } from "../utils";
+// src/observer/index.js
 
+import { isObject } from "../utils";
+import Dep from "./dep";
+
+class Observer {
+  constructor(data) {
+    // 需要给数组和对象本身的Observer实例增加一个dep，用于做依赖收集和派发更新
+    // $set给对象定义响应式的时候，触发一次更新也会用到。
+    this.dep = new Dep(); 
+  
+    /* 
+    Object.defineProperty(data, "__ob__", {
+      value: this,
+      enumerable: false, // 不可枚举的
+    });
+    if (Array.isArray(data)) {
+      data.__proto__ = arrayMethods;
+      this.observeArray(data);
+    } else {
+      this.walk(data);
+    }
+  }
+  observeArray(data) {
+    data.forEach((item) => observe(item));
+  }
+  walk(data) {
+    Object.keys(data).forEach((key) => {
+      defineReactive(data, key, data[key]);
+    });
+  } 
+  */
+}
 export function observe(data) {
   // 如果是对象才观测
   if (!isObject(data)) {
@@ -296,7 +328,7 @@ function defineReactive(data, key, value) {
 // 对于属性的值是多维数组的，需要递归收集watcher
 function dependArray(value) {
   for (let i = 0; i < value.length; i++) {
-    // current是数组里面的数组 [[[[[]]]]]
+    // current是数组里面的，可能还是数组 [[[[[]]]]]
     let current = value[i]; 
     current.__ob__ && current.__ob__.dep.depend();
     if (Array.isArray(current)) {
@@ -306,7 +338,21 @@ function dependArray(value) {
 }
 ```
 ::: tip 数组的依赖收集
-对于属性值是数组的数据，我们还需要数组的`dep`对`watcher`做依赖收集，这样的话，调用数组变异方法修改数组时，就能触发数组的`dep`循环执行`watcher.update`方法更新视图。对于数组中嵌套数组的（多维数组），还需要递归收集`watcher`，这样才能在只修改内部数组时，也触发视图更新。
+对于对象类型的值 数组`([])`或对象`({})`在进行观测（`Observer`）时，会在`Observer`实例上增加以下两个属性：
+- 1、`this.dep = new Dep()` 增加`dep`属性，之后数组做依赖收集(收集`watcher`)会用到，对象新增属性定义响应式时触发更新会用到。
+- 2、增加不可枚举的`__ob__`属性
+  ```js
+  Object.defineProperty(value,'__ob__',{
+    value:this, // 观测当前值的`Observer`实例
+    enumerable:false, // 不能被枚举 不能被循环
+    configurable:false,// 不能删除此属性
+  }) 
+  ```
+  `__ob__`属性作用如下：
+    - 1、为了在数组劫持方法中有新增值的时候拿到观测的`ob`实例，调用`ob`实例原型上的`observeArray`对新增的值进行递归观测。
+    - 2、当调用数组变异方法改变数组时，执行`ob.dep.notify()`方法，更新视图
+    - 3、对象新增属性需要定义响应式的时候需要用到。
+对于属性值是数组的数据，需要给观测数组的`Observer`实例初始化一个`dep`，当获取属性走到`get`方法中时，我们让数组的`dep`也对`watcher`做依赖收集，调用数组变异方法修改数组时，就能触发数组的`dep`循环执行`watcher.update`方法更新视图。对于数组中嵌套数组的（多维数组），还需要递归收集`watcher`，这样才能在只修改内部数组时，也触发视图更新。
 :::
 
 ## 数组的派发更新
@@ -339,3 +385,10 @@ methods.forEach((method) => {
   };
 });
 ```
+
+## 对象新增属性的响应式原理
+::: tip
+对于对象的新增属性，`Vue`是观测不到的，所以当新增属性改变时，数据会更新，但是视图并不会更新。如果想要对象新增的属性也响应式的变化，就要用到`$set`方法来给对象新增属性。
+
+`$set(target,propertyName/index,value)`就是用到了给对象类型的数据添加的`__ob__`属性，拿到观测当前对象的`ob`实例(`target.__ob__`)，再通过`ob`实例拿到当前观测的对象(`ob.value`)，调用`defineReactive(ob.value, key, val)`方法，将新增属性也定义成响应式的，最后通过给`ob`实例增加的`dep`触发视图更新。
+:::

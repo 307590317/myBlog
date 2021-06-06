@@ -127,7 +127,7 @@ function createComputedGetter(key) {
 `createComputedGetter`是主要的判断计算属性是否需要重新取值的方法，当`watcher`的`dirty`属性为`true`，代表计算属性需要重新取值。
 :::
 
-## 多个watcher的收集
+## 多个watcher的收集(dep升级)
 
 ```js
 // src/observer/dep.js
@@ -277,5 +277,5 @@ function createComputedGetter(key) {
 
 所以需要让依赖的属性也收集渲染`watcher`，依赖的值改变了之后不仅要通知计算属性`watcher`将`ditry`改为`true`，还需要通知渲染`watcher`更新视图，对计算属性`fullName`重新取值。
 
-在计算属性首次取值时，会走劫持后的`createComputedGetter`包装后的返回函数，对应的`watcher`的`dirty`属性为`true`，调用`evaluate`方法，内部会走`get`方法。此时依赖值将收集计算属性`watcher`，之后调用`popTarget`将`Dep.target`设为栈中上一个`watcher`。此时需要调用`watcher.depend`让依赖值收集渲染`watcher`。
+在计算属性首次取值时，会执行劫持后的`createComputedGetter`包装后的返回函数。对应的`watcher`的`dirty`属性为`true`，调用`evaluate`方法，内部会走`get`方法。此时依赖值将收集计算属性`watcher`，之后调用`popTarget`将`Dep.target`设为栈中上一个`watcher`。此时需要调用`watcher.depend`让依赖值收集渲染`watcher`。
 :::
