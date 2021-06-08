@@ -103,6 +103,7 @@ module.exports = {
         "/vue/nextTick",
         "/vue/watch",
         "/vue/computed",
+        "/vue/lifecycle",
       ]
     }
   ],

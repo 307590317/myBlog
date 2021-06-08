@@ -11,7 +11,6 @@ sidebarDepth: 0
 <div id="app">{{name}}</div>
 <script>
   const vm = new Vue({
-    // watcher 渲染watcher
     el: "#app",
     data: {
       name: "mrzhao",
