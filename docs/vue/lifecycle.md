@@ -171,7 +171,7 @@ export function mergeOptions(parent, child) {
 ```
 
 ::: tip mergeOptions
-`mergeOptions`方法主要对父、字的属性进行合并，会对父、子的属性分别遍历，处理多种情况下的合并。对于生命周期，有自己合并策略`mergeHook`，就采用自己的合并策略进行合并。最后将父、子的生命周期函数都合并成一个数组，等待调用。
+`mergeOptions`方法主要对父、子的属性进行合并，会对父、子的属性分别遍历，处理多种情况下的合并。对于生命周期，有自己合并策略`mergeHook`，就采用自己的合并策略进行合并。最后将父、子的生命周期函数都合并成一个数组，等待调用。
 :::
 
 ## 与组件中的生命周期混入
@@ -200,23 +200,52 @@ Vue.prototype._init = function (options) {
 ## 生命周期的调用
 
 ```js
-// src/observer/index.js
+// src/lifecycle.js
 
-export function observe(data) {
-  // 如果不是对象则直接return
-  if (!(val !== null && typeof val == "object")) {
-    return;
+export function callHook(vm, hook) {
+  let handlers = vm.$options[hook];
+  // 拿到生命周期需要执行的方法，循环调用。
+  if (handlers) {
+    for (let i = 0; i < handlers.length; i++) {
+      // 生命周期函数中的this都是当前实例
+      handlers[i].call(vm);
+    }
   }
-  // 如果观测过了，就直接返回观测当前数据的observer实例，防止重复观测
-  if(data.__ob__){
-    return data.__ob__
-  }
-  return new Observer(data);
 }
 ```
-::: tip __ob__属性
-`Observer`类在观测时会给数据增加不可枚举的`__ob__`属性，值为观测当前数据的`observer`实例，有以下作用：
-1、防止重复观测数据：在调用`observe`方法时判断是否有`__ob__`属性来防止重复观测
-2、在数组调用方法给数组新增数据时，需要对新增数据也进行观测，方便数组拿到自身的`observer`实例，调用`observer`实例原型方法`observeArray`对新增数据进行观测
-3、当数组更改时也需要触发视图更新，也需要调用`observer`实例的相关方法
+::: tip callHook
+在`lifecycle`文件中新增调用生命周期的`callHook`方法。
+:::
+
+```js
+// src/init.js
+import { callHook } from "./lifecycle.js";
+
+Vue.prototype._init = function (options) {
+  // const vm = this;
+  // vm.$options = mergeOptions(vm.constructor.options, options);
+  callHook(vm, "beforeCreate"); 
+  // initState(vm);
+  callHook(vm, "created"); 
+  // if (vm.$options.el) {
+  //   vm.$mount(vm.$options.el);
+  // }
+};
+```
+```js
+// src/lifecycle.js
+export function mountComponent(vm, el) {
+  // vm.$el = el;
+  callHook(vm, "beforeMount"); 
+  // let updateComponent = () => {
+  //   vm._update(vm._render());
+  // };
+  // new Watcher(vm,updateComponent,() => {
+  //   console.log('更新视图了')
+  // },true);
+  callHook(vm, "mounted");
+}
+```
+::: tip 执行钩子函数
+在`vm`对应的时期调用`callHook`方法执行对应时期的钩子函数。
 :::
