@@ -149,9 +149,7 @@ function createAstElement(tagName, attrs) {
     attrs,
   };
 }
-let root = null;
-// 采用栈结构存放遇到的标签，1、为了拿到父标签。2、验证标签是否匹配
-let stack = [];
+
 
 // 开始标签
 function start(tagName, attributes) {
@@ -196,7 +194,10 @@ export function parserHTML(html) {
   function advance(len) {
     html = html.substring(len);
   }
-
+  
+  let root = null;
+  // 采用栈结构存放遇到的标签，1、为了拿到父标签。2、验证标签是否匹配
+  let stack = [];
   // 匹配开始标签并解析属性
   function parseStartTag() {
     const start = html.match(startTagOpen);

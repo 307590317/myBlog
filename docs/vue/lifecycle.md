@@ -243,7 +243,12 @@ export function mountComponent(vm, el) {
   // new Watcher(vm,updateComponent,() => {
   //   console.log('更新视图了')
   // },true);
-  callHook(vm, "mounted");
+  
+  // 如果已经挂载过就不需要再执行mounted钩子函数了
+  if (vm.$vnode == null) {
+    vm._isMounted = true
+    callHook(vm, 'mounted')
+  }
 }
 ```
 ::: tip 执行钩子函数
