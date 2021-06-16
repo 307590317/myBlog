@@ -99,7 +99,7 @@ function createWatcher(vm, expOrFn, handler, options = {}) {
     handler = vm[handler];
   } else if (typeof handler === "object") {
     // 传入的是对象，对象中有回调
-    options = handler; // 存到options上 之后要用到如depp、immediate属性
+    options = handler; // 存到options上 之后要用到如deep、immediate属性
     handler = handler.handler;
   }
   // 主要方法为Vue原型上的$watch方法来生成用户的watcher
