@@ -185,8 +185,7 @@ export function patch(oldVnode, vnode) {
   // 根据传入的oldVnode的nodeType是否有值判断是首次渲染还是视图更新
   // 首次渲染时，传入的vm.$el就是用户传入options中的el选项  所以是真实dom
   // 视图更新的时候  vm.$el 就被替换成了更新之前的老的虚拟dom
-  const isRealElement = oldVnode.nodeType; // 真实DOM节点nodeType为1，虚拟节点没有
-  if (isRealElement) { // 首次渲染的逻辑
+  if (oldVnode.nodeType == 1) { // 首次渲染的逻辑
     const oldElm = oldVnode; // <div id="app">{{name}}<div>
     const parentElm = oldElm.parentNode; // body
     // 将虚拟dom转化成真实dom节点
@@ -196,6 +195,7 @@ export function patch(oldVnode, vnode) {
     parentElm.insertBefore(el, oldElm.nextSibling);
     // 删除老的el节点
     parentElm.removeChild(oldVnode);
+
     return el;
   }else{
     // diff 新旧 虚拟节点

@@ -104,6 +104,7 @@ module.exports = {
         "/vue/watch",
         "/vue/computed",
         "/vue/lifecycle",
+        "/vue/domdiff",
       ]
     }
   ],
