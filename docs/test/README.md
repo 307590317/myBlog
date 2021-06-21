@@ -55,3 +55,7 @@ pickerOptions: {
 window.URL.createObjectURL：生成一个包含传入数据的URL
 :::
 
+## import异步加载原理
+::: tip
+首先，`webpack`会将异步加载的代码单独打成一个文件，并进行改造，使用`webpack.__require__.e`方法进行异步加载，内部通过动态创建`script`标签来动态加载数据，加载到数据后，被改造的异步加载文件会向`window.webpackJsonp`。。。。。
+:::

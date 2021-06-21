@@ -45,7 +45,7 @@ export function patch(oldVnode, vnode) {
     parentElm.insertBefore(el, oldElm.nextSibling);
     parentElm.removeChild(oldVnode);
     return el;
-  }else{ // diff 新旧 vnode节点进行更新
+  } else { // diff 新旧 vnode节点进行更新
     /* 开始对比新老虚拟节点，更新DOM */
 
     // 如果标签名称不一样，则直接换成新的
@@ -65,6 +65,9 @@ export function patch(oldVnode, vnode) {
     // 标签一样比较属性 , 拿到老的真实DOM赋给vnode，当成新的el，更新属性时要用
     let el = vnode.el = oldVnode.el; // 表示当前新节点(复用老节点)
     updateProperties(vnode, oldVnode.data) // data 中放了节点的属性
+
+    // 返回最新的真实DOM
+    return el
   }
 }
 
@@ -157,6 +160,7 @@ export function patch(oldVnode, vnode) {
       // 老节点有儿子 新节点没儿子
       el.innerHTML = ``; // 直接清空老节点的儿子
     }
+    // return el
   }
 }
 ```
@@ -188,9 +192,26 @@ function patchChildren(el,oldChildren,newChildren){
   let newEndIndex = newChildren.length - 1;  // 新的结尾索引
   let newEndVnode = newChildren[newEndIndex]; // 新的结尾节点
 
+  // 乱序对比时，为了尽量复用老节点，会用到老节点的key与索引建立的map
+  const makeIndexByKey = children =>{
+    return children.reduce((memo, cur)=>{
+      if(cur.key){
+        memo[cur.key] = index
+      }
+      return memo
+    },{})
+  }
+  
+  const keysMap = makeIndexByKey(oldChildren);
+
   // 同时循环新老虚拟节点，有一方循环完毕就结束了
   while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
-    if (isSameVnode(oldStartVnode, newStartVnode)) {
+    // 当老节点已经被移走了
+    if(oldStartVnode == null){
+      oldStartVnode = oldChildren[++oldStartIndex]
+    }else if(oldEndVnode == null){
+      oldEndVnode = oldChildren[--oldEndIndex]
+    }else if (isSameVnode(oldStartVnode, newStartVnode)) {
     /* 
       情况1 老的头和新的头节点相同，继续比较两个虚拟节点(比较属性、儿子) 
       新老开始索引+1，都往后移动，继续比对新老虚拟节点
@@ -231,6 +252,26 @@ function patchChildren(el,oldChildren,newChildren){
       oldEndVnode = oldChildren[--oldEndIndex];
       newStartVnode = newChildren[++newStartIndex];
     }
+    else{
+      /* 
+        情况5 乱序对比，以上情况都不符合，会用节点的key建立的map来进行节点对比
+        如果元素不能复用，则直接创建新元素插入到老的开始节点的前面
+        如果可以复用，将复用节点插入到老的开始节点的前面，继续比较两个虚拟节点(比较属性、儿子) 
+        最后将新的开始索引+1，向前移动，继续比对新老虚拟节点
+      */
+      let moveIndex = keysMap[newStartIndex]
+      // 索引不存在代表不能复用节点
+      if(moveIndex == undefined){
+        el.insertBefore(createElm(newStartVnode), oldStartVnode.el)
+      }else {
+        // 可以复用
+        let moveNode = oldChildren[moveIndex]
+        oldChildren[moveIndex] = null // 将移走的节点置为null
+        el.insertBefore(moveNode.el, oldStartVnode.el)
+        patch(moveNode, newStartVnode);
+      }
+      newStartVnode = newChildren[++newStartIndex];
+    }
   }
   /* 下面是比对完成后新节点或老节点还有剩余的处理 */
 
@@ -251,7 +292,8 @@ function patchChildren(el,oldChildren,newChildren){
   // 老节点剩余的，循环老节点，移除每一个。
   if (oldStartIndex <= oldEndIndex) {
     for (let i = oldStartIndex; i <= oldEndIndex; i++) {
-      el.removeChild(oldChildren[i].el);
+      // 节点不为null时才删除
+      if(oldChildren[i] != null) el.removeChild(oldChildren[i].el);
     }
   }
 }
@@ -266,8 +308,30 @@ function patchChildren(el,oldChildren,newChildren){
 <img :src="$withBase('/assets/vue-diff-3.png')" alt="vue-diff-3">
 - 情况4：老的尾和新的头节点相同<br>
 <img :src="$withBase('/assets/vue-diff-4.png')" alt="vue-diff-4">
+- 情况5：乱序对比，以上情况都不符合，会用节点的key建立的map来进行节点对比<br>
+<img :src="$withBase('/assets/vue-diff-5.png')" alt="vue-diff-5">
 - 情况1-1：新节点有剩余，向后追加<br>
 <img :src="$withBase('/assets/vue-diff-1-1.png')" alt="vue-diff-1-1">
 - 情况2-1：新节点有剩余，向前插入<br>
 <img :src="$withBase('/assets/vue-diff-2-1.png')" alt="vue-diff-2-1">
 :::
+
+## 升级_update方法应用diff更新
+```js
+// src/lifecycle.js
+
+export function lifecycleMixin(Vue) {
+  Vue.prototype._update = function (vnode) {
+    const vm = this;
+    const prevVnode = vm._vnode; // 保留上一次的vnode
+    vm._vnode = vnode;
+    // 初次渲染 vm._vnode不存在
+    if (!prevVnode) {
+      vm.$el = patch(vm.$el, vnode);
+    } else {
+      // 更新时Diff
+      vm.$el = patch(prevVnode, vnode);
+    }
+  };
+}
+```
