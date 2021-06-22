@@ -335,3 +335,6 @@ export function lifecycleMixin(Vue) {
   };
 }
 ```
+::: tip _update
+升级过之后，再次更新数据时，更新视图时就会走`patch`方法，最少化的更新`DOM`。
+:::
