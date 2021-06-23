@@ -138,7 +138,8 @@ module.exports = {
         "",
         "/webpack/1",
         "/webpack/2",
-        "/webpack/3"
+        "/webpack/3",
+        "/webpack/asyncLoad",
       ]
     }
   ],
