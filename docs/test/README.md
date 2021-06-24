@@ -42,6 +42,10 @@ pickerOptions: {
 ```
 :::
 
+## echarts
+::: tip
+解决chart图`legend`展示顶部文字切割的问题:  修改 legend:textStyle:lineHeight:14
+:::
 ## Mac电脑常用
 :::tip
 查询本机IP
@@ -51,6 +55,18 @@ pickerOptions: {
 `defaults write com.apple.finder AppleShowAllFiles -boolean true ; killall Finder`
 `defaults write com.apple.finder AppleShowAllFiles -boolean false ; killall Finder`
 
+`cd ~/.ssh`       进入.ssh文件
+`ls `             查看当前文件夹下的所有文件
+`cat id_rsa.pub`  查看公钥
+`vim id_rsa.pub`  进入id_rsa.pub文件
+按字母 `i` 键 进入编辑模式，编辑完成后按`ESC`键退出编辑，输入`:wq`保存并退出
+`ssh-keygen -t rsa -C "zhaoyu8@cmcm.com"` 生成邮箱对应的密钥
 
 window.URL.createObjectURL：生成一个包含传入数据的URL
+:::
+## vscode
+::: tip vscode
+Vscode 恢复默认终端展示配置
+
+在`setting.json`配置中修改`"terminal.integrated.tabs.enabled":false`
 :::
