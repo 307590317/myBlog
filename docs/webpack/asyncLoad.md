@@ -190,7 +190,7 @@ function webpackJsonpCallback([chunkIds, moreModules]) {
 };
 ```
 
-## 
+## __webpack_require__.t
 ::: tip __webpack_require__.t 统一处理结果
 `__webpack_require__.t`方法将模块统一处理，伪造`namespace`，值都统一从`default`属性上取。最后在then方法中返回伪造`namespace`之后的结果，就能在用的`then`方法中拿到最终的值。
 :::
