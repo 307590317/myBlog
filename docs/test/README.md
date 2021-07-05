@@ -65,8 +65,34 @@ pickerOptions: {
 window.URL.createObjectURL：生成一个包含传入数据的URL
 :::
 ## vscode
-::: tip vscode
-Vscode 恢复默认终端展示配置
-
+### Vscode 恢复终端默认展示
+::: tip 终端默认展示
 在`setting.json`配置中修改`"terminal.integrated.tabs.enabled":false`
+:::
+
+### Vscode 文件目录检索增加智能提示
+::: tip 智能提示
+在`setting.json`配置中新增
+```json
+"path-intellisense.mappings": {
+  "@": "${workspaceRoot}/src"
+}
+```
+在项目根目录新增`jsconfig.json`文件
+```json
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
+```
 :::
