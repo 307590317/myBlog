@@ -31,7 +31,7 @@ module.exports = [
   },
   {
     text: "ES6",
-    link: "/ES6/1"
+    link: "/ES6/base"
   },
   {
     text: "Node",

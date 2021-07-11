@@ -105,6 +105,7 @@ module.exports = {
         "/vue/computed",
         "/vue/lifecycle",
         "/vue/domdiff",
+        "/vue/vuex",
       ]
     }
   ],
@@ -135,11 +136,13 @@ module.exports = {
       title: 'Webpack',
       collapsable: false,
       children: [
-        "",
-        "/webpack/1",
-        "/webpack/2",
-        "/webpack/3",
+        "/webpack/base",
+        "/webpack/usage",
+        "/webpack/babelConfig",
+        "/webpack/process",
+        "/webpack/shaking",
         "/webpack/asyncLoad",
+        
       ]
     }
   ],
@@ -148,8 +151,9 @@ module.exports = {
       title: 'ES6',
       collapsable: false,
       children: [
-        "/ES6/1",
-        "/ES6/2"
+        "/ES6/base",
+        "/ES6/promise",
+        "/ES6/yield"
       ]
     }
   ],
