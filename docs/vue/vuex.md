@@ -168,10 +168,103 @@ export default Store;
 :::
 
 ### getters
-
 ::: tip getters
-`getters`相当于一个计算属性
+`getters`相当于一个计算属性，当依赖的状态变化时会重新取值，相当于`computed`计算属性，所以就用`_vm`的计算属性来实现`getters`，将`getters`中的方法都映射到`_vm`的计算属性上，来实现缓存的功能。当从`getters`上取值时，需要对`computed`进行取值，来实现计算属性的依赖收集的功能。
 :::
-会 new Vue 来生成一个 vue 实例 vm，通过 vm 来实现 state 和 getters 的响应式
-通过将 state 放在 vm 的 data 上来实现响应式的原理。
-通过将 store 的 getters 中的方法放在 vm 的 computed 上来实现计算属性，当在页面中调用 getters 中的方法时 ，需要去 computed 上取值（走代理去 vm 上取对应的计算属性）。
+```js
+// scr/vuex/utils.js
+export function forEach(obj, fn){
+  Object.keys(obj).forEach(key =>{
+    fn(obj[key], key)
+  })
+}
+```
+```js
+// src/vuex/store.js
+import { Vue } from './install'
+import { forEach } from './utils'
+
+class Store {
+  constructor(options) {
+    let { state = {}, getters = {}, mutations = {}, actions = {}, strict } = options;
+    // 初始化容器实例的 getters
+    this.getters = {};
+    const computed = {}
+    // 遍历用户传入的getters，将方法映射到 _vm 实例的计算属性上
+    forEach(getters, (fn, key) =>{
+      computed[key] = () => {
+        return fn(this.state)
+      }
+      // 当去this.getters取值时，就到_vm实例上取对应的计算属性的值，以便依赖收集
+      Object.defineProperty(this.getters, key, {
+        get:() => this._vm[key]
+      })
+    })
+    this._vm = new Vue({
+      computed
+    })
+  }
+}
+
+export default Store;
+```
+
+### mutations
+::: tip mutations
+我们可以通过调用`commit`去同步的修改`vuex`中的状态（在`mutations`中只能同步的修改状态，不能有异步的操作）。其实质就是把用户传入的`mutations`映射到了`store`的`mutations`属性上。调用了`commit`时，就去`store`的`mutations`中执行对应的方法。
+:::
+```js
+// src/vuex/store.js
+import { Vue } from './install'
+import { forEach } from './utils'
+
+class Store {
+  constructor(options) {
+    let { state = {}, getters = {}, mutations = {}, actions = {}, strict } = options;
+    // 初始化store的mutations
+    this.mutations = {}
+    // 遍历用户传入的mutations，映射到store的mutations上，以便在页面中通过$store.commit
+    forEach(mutations, (fn, key) =>{
+      this.mutations[key] = payload =>fn.call(this,this.state,payload)
+    })
+  }
+  commit(key,payload){
+    // 在页面中调用$store.commit时执行store的mutations中的对应方法，并传入参数
+    this.mutations[key](payload)
+  }
+}
+
+export default Store;
+```
+
+### actions
+::: tip actions
+我们可以通过调用`dispatch`去异步的修改`vuex`中的状态。其实质就是把用户传入的`actions`映射到了`store`的`actions`属性上。在页面中调用`dispatch`方法时，就去`store`的`actions`中执行对应的方法。
+:::
+```js
+// src/vuex/store.js
+import { Vue } from './install'
+import { forEach } from './utils'
+
+class Store {
+  constructor(options) {
+    let { state = {}, getters = {}, mutations = {}, actions = {}, strict } = options;
+    // 初始化store的actions
+    this.actions = {}
+    // 遍历用户传入的actions，映射到store的actions上，以便在页面中通过$store.dispatch执行相应的方法
+    forEach(actions, (fn, key) =>{
+      this.actions[key] = payload =>fn.call(this,this,payload)
+    })
+  }
+  // 由于 在actions中是采用解构commit去调用，{ commit }，所以为了保证commit中this是当前实例，所以都写成箭头函数
+  commit = (key,payload) => {
+    this.mutations[key](payload)
+  }
+  dispatch = (key,payload) => {
+    // 在页面中调用$store.dispatch执时执行store的actions中的对应方法，并传入参数
+    this.actions[key](payload)
+  }
+}
+
+export default Store;
+```
