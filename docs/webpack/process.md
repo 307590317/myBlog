@@ -36,8 +36,71 @@ tags:
 :::
 
 ## webpack打包优化
-### 优化导入文件后缀
+### 优化打包速度
+#### 开启tree-shaking
+::: tip 开启`tree-shaking`的方式
+- 1、将`mode`改为`production`模式，将会自动开启`tree shaking`和`uglifyjs`。
+- 2、通过`optimization`配置去开启一些优化的功能， 又叫`Scope Hoisting`
+  ```js
+  module.exports = {
+    mode: 'none',
+    entry: './src/index.js',
+    output: {
+      filename: 'bundle.js'
+    },
+    optimization: {
+      // 模块只导出被使用的成员
+      usedExports: true, // 用来标记 '枯树叶'
+      // 尽可能合并每一个模块到一个函数中 提升运行效率
+      concatenateModules: true, 
+      // 压缩输出结果
+      minimize: true // 用来摇下 '枯树叶'，
+      sideEffects: true // 要去除没有副作用的引用
+    }
+  }
+  ```
+`tree shaking`还需要配置一些其他的东西：
+- 1、`tree shaking`依赖的是`es6 module`规范,而`@babel/preset-env`会将`es6 module`转化为`commonjs`代码，这样`tree shaking`就不会生效，所以需要在`@babel/preset-env`这个插件中将`module`改为`false`,不转为`commonjs`代码。
+```.babelrc
+{
+  "presets": [
+    ["@babel/preset-env",
+      {
+        "modules": false // 不转为commonjs
+      }
+    ]
+  ]
+}
+```
+- 2、`sideEffects`：用来标识代码是否有副作用或者哪些代码有副作用，从而为`tree shaking`提供更大的压缩空间。需要在`package.json`中写明所有文件都没有副作用还是哪些文件有副作用。
+```json
+"sideEffects": false // 表示所有文件都没有副作用
+"sideEffects": [ // 表示哪些文件是有副作用的
+  "./src/extend.js",
+  "*.css"
+]
+
+```
+:::
+#### 缩小文件查找范围
 ::: tip
-当导入文件不写文件后缀时，`webpack`就会去根据自己的文件查找顺序去查找。
-我们可以在`webpack`配置的`resolve`中配置`extensions`的值，来缩小`webpack`查找时的范围，以便更快的查找到对应的模块。
+- 1、采用`include exclude`来减少`loader`搜索时的转换时间。
+- 2、采用`alias`取别名的方式来缩小`import vue`时，`webpack`的查找范围，不用的话`webpack`就会采用向上递归的方式去`node_modules`目录下找。
+- 3、增加`noParse`, 告诉`webpack`不解析模块中的依赖， 比如`jquery、moment`
+- 4、采用`webpack.IgnorePlugin` 插件，忽略掉第三方包的指定目录，比如`moment`的语言包
+- 5、增加`extensions`字段定义文件后缀，告诉`webpack`优先查找哪些文件
+:::
+
+#### 用happyPack开启多进程loader转换
+::: tip 
+`happyPack`采用多进程的方式并行的处理文件，子进程完成后将结果发到主进程中，从而减少总的构建时间
+:::
+#### 抽离第三方模块
+::: tip
+采用`DllPlugin DllReferencePlugin`,`DllPlugin`用来抽离，`DllReferencePlugin`用来在`webpack.config.js`中引入抽离出来的`manifest.json`
+:::
+
+#### 配置loader缓存
+::: tip 
+在`babel-loader`中可以通过设置`cacheDirectory`来开启缓存，`babel-loader?cacheDirectory=true`,就会将每次的编译结果写进硬盘文件，不支持`cacheDirectory`的可以使用`cache-loader`，再次构建会先比较，如果文件没有改变则会直接使用缓存。
 :::

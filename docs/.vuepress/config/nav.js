@@ -27,7 +27,7 @@ module.exports = [
   },
   {
     text: "Webpack",
-    link: "/webpack/"
+    link: "/webpack/base"
   },
   {
     text: "ES6",
