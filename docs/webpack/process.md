@@ -1,5 +1,5 @@
 ---
-title: webpack打包流程
+title: webpack打包流程及优化
 sidebarDepth: 0
 tags:
   - webpack
@@ -38,7 +38,7 @@ tags:
 ## webpack打包优化
 ### 优化打包速度
 #### 开启tree-shaking
-::: tip 开启`tree-shaking`的方式
+::: tip 开启 tree-shaking 的方式
 - 1、将`mode`改为`production`模式，将会自动开启`tree shaking`和`uglifyjs`。
 - 2、通过`optimization`配置去开启一些优化的功能， 又叫`Scope Hoisting`
   ```js
@@ -91,16 +91,18 @@ tags:
 - 5、增加`extensions`字段定义文件后缀，告诉`webpack`优先查找哪些文件
 :::
 
-#### 用happyPack开启多进程loader转换
+#### 用thread-loader开启多进程loader转换
 ::: tip 
-`happyPack`采用多进程的方式并行的处理文件，子进程完成后将结果发到主进程中，从而减少总的构建时间
-:::
-#### 抽离第三方模块
-::: tip
-采用`DllPlugin DllReferencePlugin`,`DllPlugin`用来抽离，`DllReferencePlugin`用来在`webpack.config.js`中引入抽离出来的`manifest.json`
+把`thread-loader`这个`loader`放在其他`loader`的前面(左边)，放置在这个`loader`之后的`loader`就会在一个单独的worker池中`worker pool`运行，当项目比较复杂，文件比较多时，添加这个`loader`会减少转换时间。如果项目比较简单，文件比较少，反而会增加时间。
 :::
 
 #### 配置loader缓存
 ::: tip 
 在`babel-loader`中可以通过设置`cacheDirectory`来开启缓存，`babel-loader?cacheDirectory=true`,就会将每次的编译结果写进硬盘文件，不支持`cacheDirectory`的可以使用`cache-loader`，再次构建会先比较，如果文件没有改变则会直接使用缓存。
+:::
+
+### 优化体积
+#### 开启Scope Hoisting
+::: tip
+`Scope Hoisting`也叫作用域提升，是在`webpack3`中新推出的功能。`Scope Hoisting`的原理是将所有的模块按照引用顺序放在一个函数作用域里，然后适当的重名一些变量防止命名冲突，以此减少了代码运行时作用域，从而减少了内存。这个功能在`production`模式下默认开启，也是只支持`es6 module`,不支持`commonjs`。
 :::

@@ -51,12 +51,18 @@ tags:
 ## webpackPrefetch、webpackPreload
 ### webpackPrefetch
 ::: tip webpackPrefetch
-预获取配置。对于懒加载的文件，只有我们需要的时候才会引入，比如点击按钮加载`loadsh`，只有点击的时候才会才会加载`lodash`：懒加载时，会动态创建一个`script`标签，被添加到`head`头里加载资源。如果我们在`import`的时候添加`webpackPrefetch`注释， `await import(/* webpackChunkName: "lodash" */ /* webpackPrefetch: true */ 'lodash');` 就会以 `<link rel="prefetch" as="script" href="vendors-loadsh.bundle.js">` 的形式预拉取 `lodash` 代码。加了`webpackPrefetch`注释就不会等到点击按钮的时候再加载文件，在父`chunk`文件加载完成后，空闲时加载`lodash`文件。
+预获取配置。对于懒加载的文件，只有我们需要的时候才会引入，比如点击按钮加载`loadsh`，只有点击的时候才会才会加载`lodash`：懒加载时，会动态创建一个`script`标签，被添加到`head`头里加载资源。如果我们在`import`的时候添加`webpackPrefetch`注释，会将需要预获取的文件在请求中优先级变为`Lowest`，不会等到点击按钮的时候再加载文件，而会在父`chunk`文件加载完成后，空闲时加载`lodash`文件。
+```html
+<link rel="prefetch" as="script" href="vendors-loadsh.bundle.js">
+```
 :::
 
 ### webpackPreload
 ::: tip webpackPreload
-预加载配置。加了`webpackPreload`注释的`chunk`会在父`chunk`加载时，以并行的方式加载。
+需要在`webpack`中使用`preload-webpack-plugin`插件，并在需要预先加载的添加`/* webpackPreload: true */`来实现预加载配置。加了`webpackPreload`注释的`chunk`会在父`chunk`加载时，以并行的方式加载,将需要预加载的文件在请求中优先级提升到`High`。原理是利用`link`标签也能加载`js`的原理，并增加`preload`属性，来实现的预加载。
+```html
+<link rel="preload" as="script" href="title.js">
+```
 :::
 
 ## hash、chunkhash、contenthash
