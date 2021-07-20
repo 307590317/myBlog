@@ -167,6 +167,16 @@ module.exports = {
       ]
     }
   ],
+  '/leetcode/array':[
+    {
+      title: '数组',
+      collapsable: false,
+      children: [
+        "/leetcode/array/arrayIntersection",
+        "/leetcode/array/commonPrefix",
+      ]
+    }
+  ],
   '/test/':[
     {
       title: '面试题',
