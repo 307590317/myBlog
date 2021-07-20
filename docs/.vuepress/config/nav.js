@@ -39,10 +39,7 @@ module.exports = [
   },
   {
     text: "算法",
-    ariaLabel: 'Language Menu',
-    items: [
-      { text: '数组', link: '/leetcode/array/arrayIntersection' }
-    ]
+    link: "/leetcode/array"
   },
   {
     text: "面试题",

@@ -167,13 +167,12 @@ module.exports = {
       ]
     }
   ],
-  '/leetcode/array':[
+  '/leetcode/':[
     {
-      title: '数组',
+      title: '算法',
       collapsable: false,
       children: [
-        "/leetcode/array/arrayIntersection",
-        "/leetcode/array/commonPrefix",
+        "/leetcode/array",
       ]
     }
   ],
