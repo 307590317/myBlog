@@ -26,8 +26,9 @@ tags:
 >解析`es7`语法的
 >
 >`npm install babel-preset-stage-0 --save-dev`
-## loader
-::: tip loader
+## loader的作用
+::: tip loader的作用
+`loader`其实就是一个导出的函数，参数就是`loader`要处理的源文件的字符串。
 由`webpack`打包后出来的是一份`javascript`代码，在打包的过程中，会把遇到的所有`js`类型的文件进行打包，当遇到非`js`类型的文件时，我们需要对应的`loader`对文件进行转换，然后继续执行打包任务。
 
 `loader`根据正则来匹配文件后缀，匹配中了之后就使用对应的`loader`对文件进行转化。一个文件类型可以对应多个`loader`，写成数组的形式，但是是按照从右往左，从下往上的顺序串行执行的，前一个`loader`的返回值会被当做下一个`loader`的入参，因此`loader`的编写最后都需要返回固定的`js`代码字符串(或者调用回调函数返回`content`)
@@ -41,7 +42,7 @@ tags:
 ### 解析css样式
 
 #### `style-loader`
->将导出的`css`模块 作为样式插入到`style`标签内
+>将导出的`css`模块 作为样式插入到`head`标签内
 
 #### `css-loader`
 >将`css`解析成模块，使用 import 加载，并且返回 CSS 代码
@@ -55,7 +56,7 @@ tags:
 #### `sass-loader`
 >加载`Sass / SCSS`文件并将其编译为`css`
 
-### 解析图片
+### file-loader解析图片
 ::: tip
 - `file-loader`
 - `url-loader`（`url-loader`是依赖于`file-loader`的）
