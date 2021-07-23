@@ -242,3 +242,124 @@ function plusOne(digits) {
 };
 ```
 :::
+
+## 两数之和
+::: tip 
+给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那 两个 整数，并返回他们的数组下标。
+
+**示例1：**
+给定 nums = `[2, 7, 11, 15]`, target = 9
+因为 `nums[0] + nums[1] = 2 + 7 = 9`
+所以返回 `[0, 1]`
+
+**说明：**
+你可以假设每种输入只会对应一个答案。但是，你不能重复利用这个数组中同样的元素。
+
+思路：
+利用map存储已有值和值所在的索引，循环时判断target-当前值在map中有没有，有则直接输出，没有就把当前值保存到map中，以便下次查找
+```js
+function twoSum(ary, target) {
+  let i = -1;
+  let map = {};
+  while (++i < ary.length) {
+    if (map[target - ary[i]] !== undefined) {
+      return [i, map[target - ary[i]]]
+    }
+    map[nums[i]] = i
+  }
+  return [];
+};
+```
+:::
+
+## 三数之和
+::: tip 
+给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有满足条件且不重复的三元组。
+
+**示例1：**
+给定数组 nums = `[-1, 0, 1, 2, -1, -4]`
+满足要求的三元组集合为：
+`[[-1, 0, 1], [-1, -1, 2]]`
+
+**说明：**
+注意：答案中不可以包含重复的三元组。
+
+思路：
+先将数组从小到大排序。然后优化条件当最左边大于0或者最右边小于0则直接返回空数组。
+循环数组，每次固定一个值，再采用左右指针的方式，内层循环指针，拿到两个数，与固定值相加得到sum
+（优化条件：外层循环数组时，如果固定节点都大于0，则直接返回res结果）
+如果sum = 0, 则将三个值放入res结果数组中，并跳过重复的值
+如果sum > 0, 则将右指针左移1位。
+如果sum < 0, 则将左指针右移1位。
+一直到左指针等于右指针时，内层循环结束
+内层循环结束时，需要跳过重复的固定值（与当前固定值重复就跳过）
+
+```js
+function threeSum(ary) {
+  ary.sort((a,b)=> a - b)
+  let leftI, rightI, len = ary.length
+  const res = []
+  if(len < 3 || ary[0] > 0 || ary[len - 1] < 0) return []
+  for (let i = 0; i < len - 2;) {
+    if(ary[i] > 0) return res;
+    leftI = i+1
+    rightI = len - 1
+    while (leftI < rightI) {
+      let sum = ary[i] + ary[leftI] + ary[rightI]
+      if(sum === 0){
+        res.push([ary[i], ary[leftI], ary[rightI]])
+        while(leftI < rightI && ary[leftI] === ary[++leftI]);
+        while(leftI < rightI && ary[rightI] === ary[--rightI]);
+      }else if(sum > 0){
+        rightI--
+      }else{
+        leftI++
+      }
+    }
+    while(ary[i]=== ary[++i]);
+  }
+  return res
+};
+```
+:::
+
+## Z字形变换
+::: tip 
+将一个给定字符串根据给定的行数，以从上往下、从左到右进行 Z 字形排列。比如输入字符串为 "LEETCODEISHIRING" 行数为 3 时，排列如下：
+```
+L   C   I   R
+E T O E S I I G
+E   D   H   N
+```
+之后，你的输出需要从左往右逐行读取，产生出一个新的字符串，比如："LCIRETOESIIGEDHN"。
+
+**示例1：**
+输入: `s = "LEETCODEISHIRING", numRows = 3`
+输出: `"LCIRETOESIIGEDHN"`
+
+**示例2：**
+输入: `s = "LEETCODEISHIRING", numRows = 4`
+输出: `"LDREOEIIECIHNTSG"`
+
+**说明：**
+注意：答案中不可以包含重复的三元组。
+
+思路：
+采用数组的方式，有几行数组里就有几项空字符串。然后循环字符串，通过切换行数挨个的放入数组对应的值中，最终按照空字符串`join`数组即可得到想要的结果
+
+```js
+function convert(s, numRows) {
+  if(numRows === 1) return s
+  const res = new Array(numRows).fill('')
+  let line = 0, flag = -1
+  for (let i = 0; i < s.length; i++) {
+    res[line] += s[i]
+    if(line === 0 || line === numRows -1) flag = - flag
+    line += flag
+  }
+  return res.join('')
+}
+```
+:::
+
+
