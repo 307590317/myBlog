@@ -106,6 +106,7 @@ module.exports = {
         "/vue/lifecycle",
         "/vue/domdiff",
         "/vue/vuex",
+        "/vue/seo",
       ]
     }
   ],
@@ -173,6 +174,7 @@ module.exports = {
       collapsable: false,
       children: [
         "/leetcode/array",
+        "/leetcode/linkList",
       ]
     }
   ],
