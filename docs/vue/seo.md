@@ -77,7 +77,7 @@ http {
 
 需要用到`prerender-spa-plugin`来做预渲染，它是一个`webpack`插件，用于在单页应用中预渲染静态`html`内容。
 
-`prerender-spa-plugin`原理：在`webpack`构建阶段的最后，在本地启动`node`服务，启动`Puppeteer`，通过`Puppeteer`这个`node`提供的无头浏览器（没有用户界面的浏览器），提供的`API`来模拟用户请求需要预加载的页面，`node`服务收到请求处理后并返回对应的页面，之后`Puppeteer`处理返回的页面并渲染，拿到最终渲染的页面内容并替换掉之前打包的`html`文件。
+`prerender-spa-plugin`原理：在`webpack`构建阶段的最后，在本地启动`node`服务，启动`Puppeteer`，通过`Puppeteer`这个`node`提供的无头浏览器（没有用户界面的浏览器），提供的`API`来模拟用户访问需要预渲染的路由，`node`服务收到请求处理后并返回对应的页面，之后`Puppeteer`处理返回的页面并渲染，拿到最终渲染的页面内容并替换掉之前打包的`html`文件。
 
 使用预渲染路由模式必须用`history`模式。因为`hash`不会被带到服务器，路由信息会丢失。
 
