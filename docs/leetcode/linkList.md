@@ -128,5 +128,30 @@ function hasCycle(head){
 ```
 :::
 
+## 反转链表
+::: tip 
+定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
 
+**示例1：**
+输入: `1->2->3->4->5->NULL`
+输出: `5->4->3->2->1->NULL`
 
+思路：
+  要那当前节点来判断是否继续循环，而不是用`head.next`
+```js
+/**
+ * @param {ListNode} head
+ * @return {ListNode}
+ */
+var reverseList = function(head) {
+    let cur = head ,temp, newHead = null
+    while(cur){
+        temp = cur.next
+        cur.next = newHead
+        newHead = cur
+        cur = temp
+    }
+    return newHead
+};
+```
+:::
