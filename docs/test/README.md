@@ -1,9 +1,9 @@
 ---
-title: 未归纳知识点
+title: 常用技巧总结
 sidebarDepth: 0
 ---
 [[toc]]
-# 未归纳知识点
+# 常用技巧总结
 ## element UI
 ::: tip
 `input`为密码输入时 取消自动填充密码 添加 `autocomplete="new-password"`
@@ -42,6 +42,18 @@ pickerOptions: {
 ```
 :::
 
+## 颜色 RGB 转换为十六进制
+```js
+const rgbToHex = (r, g, b) => "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+rgbToHex(0, 51, 255); 
+// Result: #0033ff
+```
+
+## 复制 粘贴功能
+```js
+const copyToClipboard = (text) => navigator.clipboard.writeText(text);
+copyToClipboard("Hello World");
+```
 ## echarts
 ::: tip
 解决chart图`legend`展示顶部文字切割的问题:  修改 legend:textStyle:lineHeight:14
@@ -64,7 +76,9 @@ pickerOptions: {
 
 window.URL.createObjectURL：生成一个包含传入数据的URL
 :::
+
 ## vscode
+
 ### Vscode 恢复终端默认展示
 ::: tip 终端默认展示
 在`setting.json`配置中修改`"terminal.integrated.tabs.enabled":false`
