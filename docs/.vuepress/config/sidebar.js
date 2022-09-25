@@ -184,11 +184,11 @@ module.exports = {
       collapsable: false,
       children: [
         "",
-        "/test/1",
-        "/test/2",
-        "/test/3",
-        "/test/4",
-        "/test/5",
+        "/test/js",
+        "/test/vue",
+        "/test/react",
+        "/test/write",
+        "/test/project",
         "/test/binaryTree"
       ]
     }

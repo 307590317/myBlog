@@ -43,6 +43,6 @@ module.exports = [
   },
   {
     text: "面试题",
-    link: "/test/1"
+    link: "/test/"
   }
 ];

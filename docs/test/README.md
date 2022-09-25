@@ -72,7 +72,7 @@ copyToClipboard("Hello World");
 `cat id_rsa.pub`  查看公钥
 `vim id_rsa.pub`  进入id_rsa.pub文件
 按字母 `i` 键 进入编辑模式，编辑完成后按`ESC`键退出编辑，输入`:wq`保存并退出
-`ssh-keygen -t rsa -C "zhaoyu8@cmcm.com"` 生成邮箱对应的密钥
+`ssh-keygen -t rsa -C "zhaoyu@xxxxx.com"` 生成邮箱对应的密钥
 
 window.URL.createObjectURL：生成一个包含传入数据的URL
 :::

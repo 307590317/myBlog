@@ -110,3 +110,101 @@ body.addEventListener("paste", function (e) {
 });
 ```
 :::
+
+## 移动端点击出现蓝框
+::: tip
+```css
+
+/* 解决在安卓上的点击出现篮框问题 */
+body{
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+
+
+/*下面是解决ios上去除微信点击蓝色边框 */
+a:focus,
+p:focus,
+div:focus,
+input:focus{
+  -webkit-tap-highlight-color:rgba(0,0,0,0);
+}
+```
+:::
+
+## 上滑加载
+::: tip
+```vue
+/* elementUI 提供的 InfiniteScroll 无限滚动（PC移动端都能用）  */
+<template>
+  <ul
+      class="list"
+      style="overflow:auto"
+      v-infinite-scroll="loadMore"
+      infinite-scroll-immediate="false"
+      :infinite-scroll-disabled="loading || noMore"
+  >
+      <div
+          v-if="!loading && list.length==0"
+          class="myProposal-noData"
+      >
+          无数据
+      </div>
+      <li
+          class="item-box"
+          v-for="(item, index) in list"
+          :key="index"
+      >
+          ...
+      </li>
+      <Loading v-if="loading" />
+  </ul>
+</template>
+
+/* 移动端可以用vant 提供的list组件 */
+<template>
+  <van-list
+      v-model="loading"
+      :finished="noMore"
+      :immediate-check="false"
+      loading-text="加载中"
+      @load="getFinishedRecords"
+      :offset="10"
+  >
+      <no-data
+          v-if="!loading && records.length==0"
+          text="无数据"
+          type="empty"
+          class="noData"
+      />
+      <div
+          v-for="(item,index) in records"
+          :key="index"
+      >
+      </div>
+  </van-list>
+</template>
+<script>
+import { List } from 'vant';
+
+export default {
+    name: 'CoinDeatil',
+    components: {
+        'van-list': List,
+    },
+}
+</script>
+```
+
+## 根据dom生成图片(base64)
+::: tip
+```js
+/* 安装并引入 html2canvas */
+import html2canvas from 'html2canvas';
+
+createImg(){
+  const dom = this.$refs.this.$refs
+  const canvas = await html2canvas(dom, { scale: 2 });
+  const image = canvas.toDataURL("image/jpeg"); // image: base64
+}
+```
+:::

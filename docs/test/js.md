@@ -197,7 +197,7 @@ node中：
 把`CSS`放在`head`中是为了防止加载出来的页面没有样式，看起来丑，然后样式加载完成后闪一下。好处在于加载出来的页面直接就是带有样式的，但是在页面未显示之前页面是白屏状态。
 
 页面展示流程：
-- 1、解析`HTML`，计算`DOM`结构，生成`DOM Tree`。
+- 1、渲染进程解析`HTML`，计算`DOM`结构，生成`DOM Tree`。
 - 2、解析`HTML`时，遇到`CSS`，会异步下载并解析，生成`Style Rules`，不会阻塞`HTML`的解析。
 - 3、解析`HTML`时，遇到`script（不带defer、async属性）`，会停止`HTML`的解析，开始下载并执行脚本，直到执行完成之后，继续解析`HTML`。
 - 4、合并`DOM Ttree` 和 `Style rules` 生成`render Tree(渲染树)`
