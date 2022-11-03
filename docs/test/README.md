@@ -4,6 +4,12 @@ sidebarDepth: 0
 ---
 [[toc]]
 # 常用技巧总结
+
+## chrome浏览器自带截图功能
+::: tip 截图（可以截长图）
+找到想要截图的网页，打开控制台，同时按下 ctrl+shift+p 出来搜索框，输入截图，即可选择截图方式
+:::
+
 ## element UI
 ::: tip
 `input`为密码输入时 取消自动填充密码 添加 `autocomplete="new-password"`
@@ -110,3 +116,34 @@ window.URL.createObjectURL：生成一个包含传入数据的URL
 }
 ```
 :::
+
+## 移动端字体大小与所写样式不一致问题
+::: tip
+场景：
+通过meta标签(name=viewport)去修改相关的scale以此来适配不同大小的手机
+```html
+<meta name="viewport" content="width=750, initial-scale=0.52,maximum-scale=0.52,minimum-scale=0.52, user-scalable=no,target-densitydpi=device-dpi,minimal-ui,uc-fitscreen=no,viewport-fit=cover">
+```
+引起的问题：
+通过以上方法做HTML适配会导致 HTML中的字体样式有时会出现跟所写的css样式不一样，如字体写了font-size:28px,但是实际上会出现font-size 表现为31.333px这种问题。
+
+问题原因：
+这个特性被称做「Text Autosizer」，又称「Font Boosting」、「Font Inflation」，是 Webkit 给移动端浏览器提供的一个特性：这个特性是为用户因页面内容多而缩放页面导致字体变小看不清楚而设计的。目的是为了让用户缩放页面后保证在即不需要左右滑动屏幕，也不需要双击放大屏幕内容的前提下，也可以让人们方便的阅读页面中的文本。
+
+但是在某些场景下我们不需要这个特性，如何限制这个特性达到我们想要的结果呢？
+
+解决方案：
+1：Font Boosting 仅在未限定尺寸的文本流中有效，给元素指定宽高，就可以避免 Font Boosting 被触发。
+2、可通过指定max-height来避免触发。比如 .class {max-height:100%;}
+3、.class{ text-size-adjust:none; } // 目前项目在用
+4、指定initial-scale = 1
+
+原文地址：https://segmentfault.com/a/1190000015234607
+:::
+
+## 打出的dist包直接本地访问
+::: tip
+需要先全局安装 Http-server 模块，之后进入到index.html所在的文件夹，执行 Http-server -p 端口号
+Http-server -p 8001
+:::
+
