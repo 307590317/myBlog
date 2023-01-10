@@ -6,6 +6,8 @@ sidebarDepth: 0
 
 # 常用基础知识总结
 
+http://static.kancloud.cn/jschentt/js-interview-essentials/2510316
+
 ## 1、 `background` 中的 `url` 后面要加空格隔开不然 `IE` 下不显示
 ## 2、处理 `IE7` 下 `li` 元素之间有间隔的问题
 >不给li元素设置宽度，给li元素下的子元素设置宽度，撑开li元素即可
