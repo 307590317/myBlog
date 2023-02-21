@@ -1,16 +1,18 @@
 ---
-title: webpack基础
+title: Rollup基础
 sidebarDepth: 0
 tags:
-  - webpack
+  - Rollup
 ---
 [[toc]]
-## webpack是什么
->`webpack` 是一个`JavaScript`静态模块打包器，当`webpack`处理应用程序时会递归构建一个依赖关系图，包含程序需要的每个模块，然后将这些模块打包成一个或者多个`budle`
+## Rollup是什么
+>`Rollup`则是一个专注于`JavaScript`库打包的工具，它的设计目标是尽可能地将代码打包成最小化的形式，以提高`JavaScript`库的性能和体积。`Rollup`采用Tree-shaking算法和ES6模块规范，可以消除冗余的代码，并将整个库打包成一个独立的文件。相比`Webpack`，`Rollup`的配置简单，打包速度更快，但其功能相对较少，主要适用于构建纯`JavaScript`库。
+
+因此，如果你需要构建复杂的Web应用程序，包含多种前端技术和功能，可以考虑使用`Webpack`；如果你需要构建纯`JavaScript`库，强调性能和体积，可以选择`Rollup`。当然，在实际项目中，`Webpack`和`Rollup`也可以结合使用，根据具体情况进行取舍。
 
 ## webpack核心概念
 ::: tip 核心
-`webpack` 配置中需要理解的几个核心概念 ：**`Entry`**，**`Output`**，**`Loaders`**，**`Plugins`**，**`Chunk`**
+`Rollup` 配置中需要理解的几个核心概念 ：**`input`**，**`output`**，**`plugins`**，**`external`**，**`watch`**
 - **`Entry`**：指定`webpack`开始构建的入口模块，从该模块开始构并计算出直接或间接依赖的模块或者库。
 
 - **`Output`**：告诉`webpack`如何命名输出文件以及输出的目录
