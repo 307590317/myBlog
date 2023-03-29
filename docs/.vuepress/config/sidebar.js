@@ -201,5 +201,14 @@ module.exports = {
                 "/test/binaryTree"
             ]
         }
+    ],
+    '/trade/': [
+        {
+            title: '量化交易',
+            collapsable: false,
+            children: [
+                "/trade/macdDeviate",
+            ]
+        }
     ]
 }
