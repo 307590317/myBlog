@@ -185,7 +185,7 @@ export function nextTick(cb) {
 import { nextTick } from "./util";
 
 export function renderMixin(Vue) {
-  Vue.prototype.$nextTice = nextTick
+  Vue.prototype.$nextTick = nextTick
   // ...省略其他代码
 }
 

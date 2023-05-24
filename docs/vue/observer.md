@@ -34,7 +34,6 @@ sidebarDepth: 0
 :::
 
 ## 声明Watcher类
-
 ```js
 // src/observer/watcher.js
 
@@ -61,7 +60,7 @@ export default class Watcher {
 ```
 
 ::: tip Watcher
-Vue采用观察者模式来实现数据变化后，驱动视图更新。当数据初始化时取值时，会收集当前的渲染`watcher`，数据变化之后，通知渲染`watcher`更新视图。
+Vue采用观察者模式来实现数据变化后，驱动视图更新。watcher的作用就是数据变化后，执行相应的回调函数从而更新视图的。当数据初始化时取值时，会收集当前的渲染`watcher`，数据变化之后，通知渲染`watcher`更新视图。
 :::
 
 ## 创建渲染watcher
