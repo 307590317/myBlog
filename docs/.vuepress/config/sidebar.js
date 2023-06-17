@@ -40,7 +40,8 @@ module.exports = {
                 "/feBase/js/33",
                 "/feBase/js/34",
                 "/feBase/js/35",
-                "/feBase/js/36"
+                "/feBase/js/36",
+                "/feBase/js/37",
             ]
         }
     ],
