@@ -15,6 +15,7 @@ echo 'www.zhaoyu.fun' > CNAME
 git init
 git add -A
 git commit -m 'deploy'
+git branch -M master
 
 # 如果发布到 https://<USERNAME>.github.io
 git push -f git@github.com:307590317/307590317.github.io.git master
