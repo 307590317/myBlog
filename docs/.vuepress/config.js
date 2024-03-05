@@ -4,11 +4,11 @@ module.exports = {
   description: "个人博客",
   base: "/",
   head: [
-    ["link",{ rel: "icon",href: "/assets/logo.jpg" }]
+    ["link", { rel: "icon", href: "/assets/logo.jpg" }]
   ],
   markdown: {
-    toc:{
-      includeLevel: [2,3,4]
+    toc: {
+      includeLevel: [2, 3, 4]
     },
     lineNumbers: false,
   },
@@ -20,7 +20,7 @@ module.exports = {
     algolia: {
       apiKey: '89b040d15418343620172b26763c0a5a',
       indexName: 'zhaoyu',
-      startUrls: ['https://www.zhaoyu.fun/']
+      startUrls: ['https://www.zhaoyu.asia/']
     }
   }
 };
