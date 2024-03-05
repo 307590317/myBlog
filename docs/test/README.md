@@ -61,9 +61,105 @@ const copyToClipboard = (text) => navigator.clipboard.writeText(text);
 copyToClipboard("Hello World");
 ```
 ## echarts
+### chart文字切割
+
 ::: tip
 解决chart图`legend`展示顶部文字切割的问题:  修改 legend:textStyle:lineHeight:14
 :::
+### css渐变色与echarts 渐变色互转
+
+::: tip
+```css
+background:linear-gradient(90deg, red, blue);
+```
+```js
+import * as echarts from 'echarts/core';
+new echarts.graphic.LinearGradient(
+                    0.5,// x
+                    0,  // y
+                    0.5,// x2
+                    1, // yx
+                    '#999',
+                  )
+```
+从上面可以看出来，其实就是 `echarts` 用了坐标的形式，而 `css` 使用的角度。所以针对坐标和角度进行转换即可
+```js
+/**
+ * 线性渐变，前四个参数分别是 x0, y0, x2, y2
+ * x y 语义
+ *
+ * x=0.5 y=0,     x2=0.5, y2=1   从上到下
+ * x=1   y=0.5,   x2=0.5,   y2=0   从下到上
+ * x=0   y=0.5,   x2=1,   y2=0.5 从左到右
+ * x=1   y=0.5,   x2=0,   y2=0.5 从右到左
+ * 
+ * css 中 0deg 是从上到下，顺时针方向是从左到右渐变（90deg => 左到右）
+ *
+ * */
+const echartsToCssDeg = ({ x: x1, y: y1, x2, y2 }) => {
+  const getYAngle = function (cx, cy, x2, y2) {
+    const x = Math.abs(cx - x2);
+    const y = Math.abs(cy - y2);
+    const tan = x / y;
+    const radina = Math.atan(tan); //用反三角函数求弧度
+    let angle = Math.floor(180 / (Math.PI / radina)) || 0; //将弧度转换成角度
+    /**
+     * 根据目标点判断象限（注意是笛卡尔坐标）
+     * 一： +，+
+     * 二： -，+
+     * 三： -，+
+     * 一： +，-
+     */
+
+    //  * 二、三象限要加 180°
+    if (x2 < 0 && y2 >= 0) {
+      angle = 180 + angle;
+    }
+    if (x2 < 0 && y2 < 0) {
+      angle = 180 + angle;
+    }
+
+    // 一、二象限 === 0 就是 180°
+    if (angle === 0) {
+      if ((x2 >= 0 && y2 > 0) || (x2 <= 0 && y2 > 0)) {
+        angle = 180 + angle;
+      }
+    }
+
+    return angle;
+  };
+
+  /**
+   * 1、将 二维 坐标看成一个正方形（[0, 0],[1, 0],[1, 1],[0, 1]）， 坐落于一象限
+   * 2、根据二维坐标转一个新的坐标（相对于正方形中心点的，所以线段会贯穿正方形），
+   *    把相对于笛卡尔坐标系中心点的坐标，转为相对于正方形中心点的坐标
+   *    eg: x 0.5 => 0，
+   *        y 0   => -0.5
+   *
+   *        其实就是  x - 0.5,  y - 0.5
+   */
+  return getYAngle(x1 - 0.5, y1 - 0.5, x2 - 0.5, y2 - 0.5); 
+};
+const CssDegToEcharts = (deg) => { 
+  // 假定旋转半径 0.5 
+  const start = { x: 0, y: -0.5 };
+  const end = {};
+  end.x2 = start.x * Math.cos((deg * Math.PI) / 180) - start.y * Math.sin((deg * Math.PI) / 180);
+  end.y2 = start.x * Math.sin((deg * Math.PI) / 180) + start.y * Math.cos((deg * Math.PI) / 180);
+    
+  // 算出对应其他象限中对应的点
+  end.x = 0 - end.x2;
+  end.y = 0 - end.y2;
+  
+  end.x += 0.5;
+  end.y += 0.5;
+  end.x2 += 0.5;
+  end.y2 += 0.5;
+  return end; 
+}
+```
+:::
+
 ## Mac电脑常用
 :::tip
 查询本机IP
@@ -79,8 +175,40 @@ copyToClipboard("Hello World");
 `vim id_rsa.pub`  进入id_rsa.pub文件
 按字母 `i` 键 进入编辑模式，编辑完成后按`ESC`键退出编辑，输入`:wq`保存并退出
 `ssh-keygen -t rsa -C "zhaoyu@xxxxx.com"` 生成邮箱对应的密钥
+:::
 
+## window电脑常用
+::: tip
 window.URL.createObjectURL：生成一个包含传入数据的URL
+:::
+
+### window 10 yarn network connection
+::: tip
+window 10  yarn时遇到下面问题
+info There appears to be trouble with your network connection.Retrying...
+
+测试下是不是ipv6不通导致的
+```shell
+ping -4 registry.npmmirror.com # 测试 IPv4 是否联通?
+ping -6 registry.npmmirror.com # 测试 IPv6 是否联通?
+```
+
+如果v4 可以 v6不通的话就说明是window10 ipv6导致的问题
+可以先暂时提高v4的优先级，yarn时适用ipv4,安装完之后再改回去
+
+`win + R` 打开命令行输入cmd,按`Ctrl+Shift+Enter`以管理员身份打开。然后输入以下内容：
+```shell
+# 1. 以系统管理者身份执行 命令提示字元，查询连线顺序
+
+netsh interface ipv6 show prefixpolicies
+# 可以看到IPv4 ::ffff:0:0/96 的顺序是 35
+
+# 2. 修改顺序，让 IPv4 优先，数字越大，优先性愈高
+netsh interface ipv6 set prefixpolicy ::ffff:0:0/96 60 4
+
+# 3. 改回原来顺序
+`netsh interface ipv6 set prefixpolicy ::ffff:0:0/96 35 4
+```
 :::
 
 ## vscode
