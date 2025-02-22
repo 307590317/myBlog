@@ -11,13 +11,10 @@ module.exports = [
       { text: 'Css', link: '/feBase/css/1' },
       { text: '浏览器', link: '/feBase/browser/1' },
       { text: '小程序', link: '/feBase/mini/1' },
-    ]
-  },
-  {
-    text: "js框架",
-    items: [
       { text: 'Vue', link: '/vue/' },
       { text: 'React', link: '/react/1' },
+      { text: 'SSR', link: '/ssr/' },
+      { text: 'Cloudflare', link: '/cloudflare/tunnel' },
     ]
   },
   {
@@ -26,10 +23,6 @@ module.exports = [
       { text: 'Webpack', link: '/webpack/base' },
       { text: 'Rollup', link: '/rollup/base' },
     ]
-  },
-  {
-    text: "SSR",
-    link: "/ssr/"
   },
   {
     text: "Node",

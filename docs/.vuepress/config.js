@@ -20,7 +20,7 @@ module.exports = {
     algolia: {
       apiKey: '89b040d15418343620172b26763c0a5a',
       indexName: 'zhaoyu',
-      startUrls: ['https://www.zhaoyu.asia/']
+      startUrls: ['https://www.zhaoyu.fit/']
     }
   }
 };
