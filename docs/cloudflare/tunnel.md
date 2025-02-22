@@ -62,7 +62,7 @@ cloudflared tunnel create mobiletest
 ```
 :::
 
-## Route
+## 创建 Route
 ::: tip 
 使用下面的命令创建一个 `dns route`，这个命令创建一个 `DNS CNAME`，指向 `mobiletest Tunnel`。
 ```shell
