@@ -35,5 +35,9 @@ module.exports = [
   {
     text: "常见问题",
     link: "/test/"
+  },
+  {
+    text: "web3",
+    link: "/web3/"
   }
 ];

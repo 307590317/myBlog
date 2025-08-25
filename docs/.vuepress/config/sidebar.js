@@ -203,6 +203,17 @@ module.exports = {
       ]
     }
   ],
+  '/web3/': [
+    {
+      title: 'web3',
+      collapsable: false,
+      children: [
+        "",
+        "/web3/wallet",
+        "/web3/bitvm"
+      ]
+    }
+  ],
   '/trade/': [
     {
       title: '量化交易',
