@@ -119,7 +119,8 @@ module.exports = {
         "/react/1",
         "/react/2",
         "/react/3",
-        "/react/4"
+        "/react/4",
+        "/react/5"
       ]
     }
   ],
