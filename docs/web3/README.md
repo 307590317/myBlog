@@ -13,6 +13,20 @@ sidebarDepth: 0
 ::: tip hash 是否改变
 改变，因为交易内容中的 gas price 变了 → 交易哈希也会变。新的交易会覆盖旧的交易，旧的交易会被节点丢弃
 :::
+### gasPrice
+::: tip
+evm系列都有**gasPrice**，分为EIP-1559(伦敦升级)之前和之后：
+- 升级之前：完全是市场博弈——由用户自己出价、矿工选择最高价的交易打包，链上没有任何算法。一般是钱包UI给出三个档位让用选择，或者让用户自己输入一个值。
+  - slow：5Gwei
+  - standard：15Gwei
+  - fast：30Gwei
+- 升级之后：改为了动态`baseFee` + `maxPriorityFee`的模型
+  - `baseFee`:由协议自动计算，会根据上个区块的gas使用量自动调整
+  - `maxPriorityFee`:由用户决定，用来给矿工的小费，普通交易：1~2Gwei,高优先级：3~5Gwei,区块特别拥堵时会更高。
+  - `maxFeePerGas`:用户愿意支付的最大Gas价格，钱包一般会自动设置为`baseFee`×2 + `maxPriorityFee`，这样能保证你的交易即使下一两个区块baseFee上涨，也不会挂住。
+
+升级后一般控制`gas`、`maxFeePerGas`、`maxPriorityFeePerGas`这三个值来保证交易完成。
+:::
 
 ## Bitcoin
 ::: tip 原理
