@@ -120,7 +120,8 @@ module.exports = {
         "/react/2",
         "/react/3",
         "/react/4",
-        "/react/5"
+        "/react/5",
+        "/react/6"
       ]
     }
   ],
