@@ -23,7 +23,7 @@ module.exports = {
       appId: "U29XBBC42V",
       apiKey: "ec107e06e810b2b1218938a646aad08c",
       indexName: 'zhaoyu',
-      startUrls: ["https://zhaoyu.fit/", "https://www.zhaoyu.fit/"],
+      startUrls: ["https://zhaoyu.ink/", "https://www.zhaoyu.ink/"],
     }
   }
 };
