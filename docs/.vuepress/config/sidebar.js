@@ -216,6 +216,15 @@ module.exports = {
       ]
     }
   ],
+  '/performance/': [
+    {
+      title: '前端架构',
+      collapsable: false,
+      children: [
+        "/performance/case",
+      ]
+    }
+  ],
   '/trade/': [
     {
       title: '量化交易',
