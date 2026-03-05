@@ -212,6 +212,7 @@ module.exports = {
       children: [
         "",
         "/web3/wallet",
+        "/web3/token",
         "/web3/bitvm"
       ]
     }
