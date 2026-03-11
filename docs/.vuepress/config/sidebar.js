@@ -121,7 +121,8 @@ module.exports = {
         "/react/3",
         "/react/4",
         "/react/5",
-        "/react/6"
+        "/react/6",
+        "/react/7"
       ]
     }
   ],
