@@ -8,9 +8,9 @@ module.exports = {
   ],
   markdown: {
     toc: {
-      includeLevel: [2, 3, 4]
+      includeLevel: [2, 3, 4, 5]
     },
-    lineNumbers: false,
+    lineNumbers: true,
   },
   themeConfig: {
     nav: require("./config/nav"),

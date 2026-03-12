@@ -18,7 +18,7 @@ module.exports = [
     ]
   },
   {
-    text: "打包工具",
+    text: "工程化",
     items: [
       { text: 'Webpack', link: '/webpack/base' },
       { text: 'Rollup', link: '/rollup/base' },

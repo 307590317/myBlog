@@ -147,7 +147,7 @@ module.exports = {
         "/webpack/process",
         "/webpack/shaking",
         "/webpack/asyncLoad",
-
+        "/webpack/test",
       ]
     }
   ],
@@ -214,7 +214,8 @@ module.exports = {
         "",
         "/web3/wallet",
         "/web3/token",
-        "/web3/bitvm"
+        "/web3/bitvm",
+        "/web3/test"
       ]
     }
   ],
