@@ -217,10 +217,17 @@ nonce 是账户发送交易的序号（递增）。
 
 每发送一笔交易就 +1。
 
+**replacement transaction:**
+用同一个nonce，发送新的交易时，一旦新的交易被打包，旧的交易会被网络丢弃。
+可用来
+- 加速交易：同一个nonce，更高的Gas费用
+- 取消交易：同一个nonce，转账金额为0
+
 常见错误：
 
 - `nonce too low`：你发送的 nonce 已被用过（并发发送、缓存不一致、用户在别处发了交易）。
-- `replacement underpriced`：同一 nonce 的替换交易 gas 不够高（EIP-1559 下是 maxFee/maxPriorityFee 不够高）
+- `replacement Transaction underpriced`：同一 nonce 的替换交易 gas 不够高（EIP-1559 下是 maxFee/maxPriorityFee 不够高），通常新的交易Gas价格要比旧交易高出至少10%(取消交易也需要gas高出10%)，才能被节点替换
+
 
 ## EIP-1559 Gas 机制
 gasPrice = baseFee + priorityFee
@@ -322,7 +329,20 @@ Indexer 可以：
 
 监听 `chainChanged` 并刷新应用。
 
-
+## WalletConnect工作原理
+WalletConnect 是 远程钱包连接协议。
+DApp
+↓
+生成 包含中继服务器地址和临时对称密钥的 二维码
+↓
+手机钱包扫描
+↓
+通过指定的中继服务器（Relay Server）建立 websocket 连接
+RPC 请求通过 relay server 转发
+↓
+钱包签名
+↓
+返回 DApp
 ## wagmi / rainbowkit 的作用
 
 提供：
@@ -357,9 +377,9 @@ eth_call 或 simulateContract
 转换：
 
 ```jsx
-//  链上使用
-parseUnits(input, decimals)
-// 前端展示
+//  链上使用 字符串 -> bigint
+parseUnits(input, decimals) 
+// 前端展示 bigint -> 字符串
 formatUnits(value, decimals)
 ```
 
@@ -404,6 +424,13 @@ chains/
 - explorer
 - contract addresses
 
+## 什么是multicall
+Multicall 是一种智能合约模式，它允许将多个合约调用打包成一个请求执行，并一次性返回所有结果，从而减少 RPC 请求数量、降低 gas 成本，并保证数据一致性。
+
+如果 Multicall 中有一个子调用失败了，整个交易会回滚吗？
+后来的版本（如 Multicall2 和 Multicall3）引入了 tryAggregate 或类似的机制，Multicall v2/v3中可以选择是否回滚：它允许用户传入一个布尔参数（如 requireSuccess），如果为false，即使部分子调用失败，整个交易依然可以成功上链，你可以拿到成功部分的数据。
+
+
 ## Web3 前端性能优化
 
 常见优化：
@@ -440,4 +467,68 @@ const checksum = getAddress(input);
 ## setApprovalForAll 为什么危险？
 ERC721/1155 的全量授权，可能允许对方转走你所有 NFT。前端必须高危提示，并显示 operator 地址。
 
+## 为什么 DApp 需要等待 confirmations
+DApp 需要等待 confirmations（确认数），主要是为了确保交易真正被网络接受且不可逆。如果不等待确认，交易可能会被回滚或替换。
 
+当你发送一笔交易时：
+1.	交易先进入 mempool（待打包池）
+2.	矿工 / 验证者把交易打包进一个 区块
+3.	区块被加入链上
+
+但刚被打包时，这个区块还不一定是最终链的一部分。
+因为可能出现：
+-	Fork（分叉）
+- 竞争区块
+-	网络延迟
+
+bitcoin：通常需要确认6个区块才认为绝对安全
+ethereum: 2-6个区块
+
+**总结：**
+confirmations 是为了让交易在区块链上“稳定下来”，防止分叉回滚导致状态错误或资金风险。
+
+## birdge的跨链流程
+### bitcoin L1 -> bitcoin L2
+::: tip 
+用户发起跨链交易:
+- 1、交易上链，BTC 被锁定在 L1
+- 2、服务端扫块任务发现交易，等待Bitcoin confirmations
+- 3、服务端验证交易
+- 4、桥的 signer（EOA、多签或阈值签名账户）在L2 mint BTC
+- 5、用户在L2收到资产
+
+Bitcoin L1 没有智能合约系统，无法让链自动验证跨链消息。
+:::
+
+### ethereum L1 -> ethereum L2
+::: tip 官方桥
+用户发起跨链交易:
+- 1、交易上链，BTC 被锁定在 L1
+- 2、L1 bridge 合约触发 deposit 事件
+- 3、L2节点/序列器(Sequencer)捕捉到L1发出的事件
+- 4、L2 mint ETH
+- 5、用户在L2收到资产。随后，序列器会将包含此笔操作的批次（Batch）提交回 L1 存证。
+:::
+
+::: tip 第三方桥
+用户发起跨链交易:
+- 1、交易上链，BTC 被锁定在 L1
+- 2、服务端扫块任务发现L1的跨链事件，等待区块确认
+- 3、桥的 signer（EOA、多签或阈值签名账户）发起一笔L2交易，调用L2上的资金池合约
+  - 注意：这里通常不是 Mint 新币，而是从 L2 现有的流动性池里直接转账（Transfer）给用户。
+- 4、用户在 L2 收到资产
+- 5、桥的 signer拿着 L1 的存款凭证，在一段时间后（或通过批量证明）向桥的协议申领返还他在 L2 垫付的资金，并赚取手续费
+:::
+
+:::tip 原生桥 vs 第三方桥
+| 维度 | 原生桥| 第三方桥 |
+|---|---|---|
+| 例子 | Arbitrum Bridge、Optimism Portal | Across、LayerZero |
+| 部署者 | L2项目方（Arbitrum / Optimism 等） | 独立第三方（Across / Stargate 等） |
+| 信任对象 | 只信任 L1 共识与算法（数学/代码） | 需要信任桥的项目方 |
+| 资金流向 | 资产锁定在 L1 Bridge 合约，在 L2 Mint | 资产进入桥的流动性池，从目标链池子 Transfer |
+| 资产来源 | 官方Mint的代币 | 从L2池子Transfer官方资产或Mint包装币 |
+| 扫块主体 | L2 序列器 / 协议级消息系统 | 项目方中继器 / Relayer（应用层） |
+| 速度 | 较慢：受 L1 确认和 L2 机制限制 | 很快：通常几分钟，因为有流动性池或中继者先行垫付 |
+| 安全性 | 极高：继承 L1 安全性 | 取决于桥的签名机制或流动性池安全 |
+:::
