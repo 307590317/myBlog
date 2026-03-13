@@ -143,7 +143,7 @@ ERC20 常见授权流程：
 - USDT（ERC-20）等非标准：  
   有些代币要求先 approve(0) 再 approve(amount)。而且不支持Permit。
 
-## 8. 什么是 permit（EIP-2612）
+## 什么是 permit（EIP-2612）
 
 permit 允许用户使用 **签名授权**，而不是发一笔 approve 交易。
 
@@ -405,24 +405,6 @@ Native Token 没有合约地址（代码中用0x00000000000000000000000000000000
 ### ERC20
 ERC20 转账走 transfer(to, amount)，value=0
 
-
-## 多链配置管理
-
-建议结构：
-
-```
-chains/
-  ethereum.ts
-  polygon.ts
-  arbitrum.ts
-```
-
-每条链包含：
-
-- chainId
-- RPC
-- explorer
-- contract addresses
 
 ## 什么是multicall
 Multicall 是一种智能合约模式，它允许将多个合约调用打包成一个请求执行，并一次性返回所有结果，从而减少 RPC 请求数量、降低 gas 成本，并保证数据一致性。
