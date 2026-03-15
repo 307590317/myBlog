@@ -36,20 +36,18 @@ sidebarDepth: 0
 :::
 
 ### gasPrice
-::: tip gasPrice
 evm系列都有**gasPrice**，分为EIP-1559(伦敦升级)之前和之后：
-:::
 
 #### 升级之前
 ::: tip gasPrice
-完全是市场博弈——由用户自己出价、矿工选择最高价的交易打包，链上没有任何算法。一般是钱包根据节点统计当前交易池中的交易，给出三个档位让用选择，或者让用户自己输入一个值。
+完全是市场博弈——由用户自己出价、矿工选择最高价的交易打包。一般是钱包根据节点统计当前交易池中的交易所给的gasPrice，给出三个档位让用选择，或者让用户自己输入一个值。
 - slow：5Gwei
 - standard：15Gwei
 - fast：30Gwei
 :::
 
 #### 升级之后
-::: tip gasPrice = baseFee + priorityFee
+::: tip gasPrice = baseFee + priorityFee[praɪˈɔrəti]
 改为了动态`baseFee` + `maxPriorityFee`的模型 
 - `baseFee`:由协议自动计算，会根据上个区块的gas使用量自动调整
 - `maxPriorityFee`:由用户决定，用来给矿工的小费，普通交易：1~2Gwei,高优先级：3~5Gwei,区块特别拥堵时会更高。
@@ -104,7 +102,7 @@ block gas limit ≈ 30000000 gas
 你可以发一笔 用同一个`输入`**(UTXO)** 的交易，更高的 fee rate（sats/vByte） 去覆盖旧交易。
 或者使用矿池的“加速服务”，比如 ViaBTC、Mempool.space 支持矿工手动加速。
 
-2、如果原交易没开 RBF，用户可以用原来交易的`输出(未确认)`**UTXO**，构造一个子交易，子交易设置一个高 **fee**，矿工为了打包子交易，必须一并打包父交易，这种方式原交易 hash 不变，但通过子交易间接提速。
+2、CPFP机制：如果原交易没开 RBF，用户可以用原来交易的`输出(未确认)`**UTXO**，构造一个子交易，子交易设置一个高 **fee**，矿工为了打包子交易，必须一并打包父交易，这种方式原交易 hash 不变，但通过子交易间接提速。
 :::
 
 ::: tip hash 是否改变

@@ -7,6 +7,42 @@ tags:
 [[toc]]
 # 前端工程化
 
+## Webpack 的构建流程是什么？
+Webpack 的构建流程可以概括为以下几个步骤：
+
+- 1、初始化参数：
+  读取命令行参数和配置文件，比如 `webpack.config.js`，合并得到最终配置。
+- 2、启动编译器：
+  创建 Compiler 对象，开始整个编译流程。
+- 3、从入口开始分析依赖：
+  从 `entry` 出发，解析模块之间的依赖关系，递归构建依赖图。
+- 4、调用Loader处理不同资源：
+  Webpack 本身只认识 JS/JSON，像 `.css`、`.less`、`.vue`、图片等资源需要经过 loader 转换。
+  比如：
+  - `babel-loader`：把 ES6+ 转成兼容代码
+  - `css-loader`：解析 CSS 中的 `import/require`
+  - `style-loader`：把样式插入页面
+  - `ts-loader`：处理 TypeScript
+
+- 5、调用 Plugin 扩展构建能力：
+  Plugin 作用于整个构建生命周期，比如：
+  - 生成 HTML
+  - 提取 CSS
+  - 压缩代码
+  - 清理输出目录
+  - 注入环境变量
+
+- 6、生成 Chunk：
+  根据依赖关系和优化策略，将模块组合成若干 chunk。
+
+- 7、输出产物：
+  把 chunk 转换成最终的 bundle 文件，输出到指定目录。
+
+- 8、如果是开发模式，启动 dev server：
+  监听文件变化，支持热更新。
+
+一句话概括：  
+**Webpack 的本质是：从入口递归构建依赖图，经过 Loader 转换和 Plugin 扩展，最终产出浏览器可运行的静态资源。**
 ## Webpack 和 Vite 的核心区别是什么？
 Webpack 和 Vite 都是前端构建工具，但设计思路不同。
 
@@ -49,43 +85,6 @@ Vite 的核心思路是：
 
 所以生产环境仍然需要打包、压缩、分包和优化。  
 这就是为什么 Vite 开发不强调预打包全部源码，但生产构建依然要借助 Rollup 输出优化后的产物。
-
-## Webpack 的构建流程是什么？
-Webpack 的构建流程可以概括为以下几个步骤：
-
-- 1、初始化参数：
-  读取命令行参数和配置文件，比如 `webpack.config.js`，合并得到最终配置。
-- 2、启动编译器：
-  创建 Compiler 对象，开始整个编译流程。
-- 3、从入口开始分析依赖：
-  从 `entry` 出发，解析模块之间的依赖关系，递归构建依赖图。
-- 4、调用Loader处理不同资源：
-  Webpack 本身只认识 JS/JSON，像 `.css`、`.less`、`.vue`、图片等资源需要经过 loader 转换。
-  比如：
-  - `babel-loader`：把 ES6+ 转成兼容代码
-  - `css-loader`：解析 CSS 中的 `import/require`
-  - `style-loader`：把样式插入页面
-  - `ts-loader`：处理 TypeScript
-
-- 5、调用 Plugin 扩展构建能力：
-  Plugin 作用于整个构建生命周期，比如：
-  - 生成 HTML
-  - 提取 CSS
-  - 压缩代码
-  - 清理输出目录
-  - 注入环境变量
-
-- 6、生成 Chunk：
-  根据依赖关系和优化策略，将模块组合成若干 chunk。
-
-- 7、输出产物：
-  把 chunk 转换成最终的 bundle 文件，输出到指定目录。
-
-- 8、如果是开发模式，启动 dev server：
-  监听文件变化，支持热更新。
-
-一句话概括：  
-**Webpack 的本质是：从入口递归构建依赖图，经过 Loader 转换和 Plugin 扩展，最终产出浏览器可运行的静态资源。**
 
 ## Loader 和 Plugin 的区别是什么？
 ::: tip Loader
@@ -176,15 +175,22 @@ const module = require('./math')
 在 `package.json` 里可以配置：
 
 ```json
+// 表示大部分文件都没有副作用，便于优化。  
 {
-  "sideEffects": false
+  "sideEffects": false 
+}
+
+ // 显式列出有副作用的文件
+{
+  "sideEffects": [
+    "./src/global.css",
+    "./src/polyfill.js",
+    "**/*.scss" 
+  ]
 }
 ```
-
-表示大部分文件都没有副作用，便于优化。  
-如果某些文件有副作用，可以显式列出来。
 :::
-**总结**
+**总结**  
 **Tree Shaking 的本质是基于 ES Module 静态分析，移除未使用代码。**
 
 ## 什么是代码分割（Code Splitting）？常见方式有哪些？
@@ -267,15 +273,11 @@ Babel 的核心作用是：
 ### 工作流程
 Babel 主要分三步：
 
-- 1、Parse：
-  把源码解析成 AST（抽象语法树）
+- 1、Parse：把源码解析成 AST（抽象语法树）
 
-- 2、Transform
-对 AST 做转换，比如把箭头函数转换为普通函数
+- 2、Transform：对 AST 做转换，比如把箭头函数转换为普通函数
 
-- 3、Generate
-把转换后的 AST 再生成新的代码
-
+- 3、Generate：把转换后的 AST 再生成新的代码
 
 **Babel 只能转语法，不一定能补 API**
 比如：
@@ -418,7 +420,7 @@ TypeScript 在工程化中的价值主要体现在以下几点：
 
 ## 你如何做首屏性能优化？
 
-首屏性能优化一般从“减少资源、加快加载、提前渲染”三个角度来做。
+从减少资源、加快加载、提前渲染 三个角度来做。
 
 ### 减少首屏资源体积
 - 路由级代码分割
@@ -478,7 +480,7 @@ app.8d9f3a.js
 静态资源部署到 CDN，提高加载速度和缓存命中率。
 
 ### 理想策略
-- **HTML：协商缓存 / 短缓存**
+- **HTML：不缓存 / 短缓存**
 - **JS / CSS / 图片：文件名 hash + 长期强缓存**
 
 ## 什么是 source map？线上环境要不要开？
@@ -505,7 +507,7 @@ source map 是源码映射文件，它可以把压缩混淆后的代码映射回
 - 上传 source map 到内部监控平台，如 Sentry
 - 浏览器用户无法直接访问，但监控平台可以解析报错
 
-vite打包构建时生成source map，然后使用sentryVitePlugin插件，实现上传后删除.map文件。
+vite打包构建时生成source map(sourcemap: 'hidden':生成独立文件但不关联，安全且完整)，然后使用sentryVitePlugin插件，实现上传后删除.map文件。
 :::
 ## ESLint 和 Prettier 的区别是什么？
 
@@ -683,12 +685,29 @@ CI/CD 分成两部分：
 
 - 1：先定位瓶颈
   不能一上来就乱优化，要先分析慢在哪里：
-
+  
   - 冷启动慢
   - 热更新慢
   - 生产构建慢
   - 某些页面打包特别慢
-  - CI 构建慢
+  - CI 构建慢（分析CI构建过程，看哪里慢）
+
+  **冷启动 & 热更新（Dev 阶段）慢**  
+  vite项目：
+  - 可在终端查看冷热启动耗时
+  - 可用vite-plugin-inspect深挖。
+  
+  webpack项目：
+  - 可用speed-measure-webpack-plugin查看loader和plugin的耗时
+
+  **生产构建 & 某些页面特别慢（Build 阶段）**   
+  vite插件：
+  - vite-plugin-progress：查看当前构建的模块
+  - rollup-plugin-visualizer：查看哪些依赖包最占体积 
+
+  webpack插件：
+  - speed-measure-webpack-plugin：查看loader和plugin的耗时
+  - webpack-bundle-analyzer：查看哪些依赖包最占体积
 
 - 2：分析构建过程
   可以从以下角度查：
@@ -702,7 +721,9 @@ CI/CD 分成两部分：
     比如 Babel / TS 是否处理了过多的第三方依赖目录。
 
   - 4）source map 是否过重：
-    某些 source map 配置会显著拖慢生产构建。
+    某些 source map 配置会显著拖慢生产构建。比如：
+    - sourcemap：true
+    - sourcemap："inline"
 
   - 5）是否缺少缓存：
     例如 Babel 缓存、Webpack 持久化缓存。
