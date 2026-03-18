@@ -25,6 +25,7 @@ sidebarDepth: 0
     - chains(useChains)
     - tokens(useTokens)
   2、UI Components (统一的 Modal 弹窗, 错误提示, 加载动画)
+  3、Provider(不同链适配器的Provider，方便用户根据选择自己嵌套)
 ---------------------------------------------------------
 [ 链适配器层 (Adapters) ]
   不同链适配器不同，共有：
