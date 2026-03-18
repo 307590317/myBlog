@@ -36,73 +36,166 @@ tags:
 :::
 
 ## webpack打包优化
-### 优化打包速度
-#### 开启tree-shaking
-::: tip 开启 tree-shaking 的方式
-- 1、将`mode`改为`production`模式，将会自动开启`tree shaking`和`uglifyjs`。
-- 2、通过`optimization`配置去开启一些优化的功能， 又叫`Scope Hoisting`
-  ```js
-  module.exports = {
-    mode: 'none',
-    entry: './src/index.js',
-    output: {
-      filename: 'bundle.js'
-    },
-    optimization: {
-      // 模块只导出被使用的成员
-      usedExports: true, // 用来标记 '枯树叶'
-      // 尽可能合并每一个模块到一个函数中 提升运行效率
-      concatenateModules: true, 
-      // 压缩输出结果
-      minimize: true // 用来摇下 '枯树叶'，
-      sideEffects: true // 要去除没有副作用的引用
-    }
-  }
-  ```
-`tree shaking`还需要配置一些其他的东西：
-- 1、`tree shaking`依赖的是`es6 module`规范,而`@babel/preset-env`会将`es6 module`转化为`commonjs`代码，这样`tree shaking`就不会生效，所以需要在`@babel/preset-env`这个插件中将`module`改为`false`,不转为`commonjs`代码。
-```.babelrc
-{
-  "presets": [
-    ["@babel/preset-env",
-      {
-        "modules": false // 不转为commonjs
-      }
-    ]
-  ]
-}
-```
-- 2、`sideEffects`：用来标识代码是否有副作用或者哪些代码有副作用，从而为`tree shaking`提供更大的压缩空间。需要在`package.json`中写明所有文件都没有副作用还是哪些文件有副作用。
-```json
-"sideEffects": false // 表示所有文件都没有副作用
-"sideEffects": [ // 表示哪些文件是有副作用的
-  "./src/extend.js",
-  "*.css"
-]
 
-```
-:::
-#### 缩小文件查找范围
-::: tip
-- 1、采用`include exclude`来减少`loader`搜索时的转换时间。
-- 2、采用`alias`取别名的方式来缩小`import vue`时，`webpack`的查找范围，不用的话`webpack`就会采用向上递归的方式去`node_modules`目录下找。
-- 3、增加`noParse`, 告诉`webpack`不解析模块中的依赖， 比如`jquery、moment`
-- 4、采用`webpack.IgnorePlugin` 插件，忽略掉第三方包的指定目录，比如`moment`的语言包
-- 5、增加`extensions`字段定义文件后缀，告诉`webpack`优先查找哪些文件
-:::
+### 优化体积
+- 1、使用splitChunks抽离公共组件
+- 2、配置babel-plugin-component，按需引入element-ui组件库
+- 3、剔除moment.js中无用的语言包
+
+### 优化热更新
+开发环境修改devtool为：'eval-cheap-module-source-map'
+- eval：不单独生成.map文件，用eval包裹源码字符串。
+- cheap：只映射到行，而不到列
+- module：保留原始源码
+- source-map：开启源码映射
+
+### 优化打包速度
 
 #### 用thread-loader开启多进程loader转换
 ::: tip 
 把`thread-loader`这个`loader`放在其他`loader`的前面(左边)，放置在这个`loader`之后的`loader`就会在一个单独的worker池中`worker pool`运行，当项目比较复杂，文件比较多时，添加这个`loader`会减少转换时间。如果项目比较简单，文件比较少，反而会增加时间。
+```js
+rules: [
+  {
+    test: /\.js$/,
+    use: [
+      {
+        loader: 'thread-loader', // 开启多进程处理 JS 逻辑
+        options: { workers: 3 }
+      },
+      'babel-loader'
+    ]
+  },
+  {
+    test: /\.scss$/,
+    use: [// loader从右往左执行
+      'vue-style-loader',
+      'css-loader',
+      'postcss-loader',
+      {
+        loader: 'thread-loader', // 给复杂的 Sass 编译分配多线程
+        options: { workers: 2 }
+      },
+      'sass-loader'
+    ]
+  }
+]
+```
 :::
 
 #### 配置loader缓存
 ::: tip 
 在`babel-loader`中可以通过设置`cacheDirectory`来开启缓存，`babel-loader?cacheDirectory=true`,就会将每次的编译结果写进硬盘文件，不支持`cacheDirectory`的可以使用`cache-loader`，再次构建会先比较，如果文件没有改变则会直接使用缓存。
+```js
+rules: [
+  {
+    test: /\.js$/,
+    use: [
+      'cache-loader',
+      {
+        loader: 'thread-loader', // 开启多进程处理 JS 逻辑
+        options: { workers: 3 }
+      },
+      'babel-loader'
+    ]
+  },
+  {
+    test: /\.scss$/,
+    use: [
+      'vue-style-loader',
+      'cache-loader',
+      'css-loader',
+      'postcss-loader', 
+      {
+        loader: 'thread-loader', // 给复杂的 Sass 编译分配多线程
+        options: { workers: 2 }
+      },
+      'sass-loader'
+    ]
+  }
+]
+```
 :::
 
-### 优化体积
-#### 开启Scope Hoisting
-::: tip
-`Scope Hoisting`也叫作用域提升，是在`webpack3`中新推出的功能。`Scope Hoisting`的原理是将所有的模块按照引用顺序放在一个函数作用域里，然后适当的重名一些变量防止命名冲突，以此减少了代码运行时作用域，从而减少了内存。这个功能在`production`模式下默认开启，也是只支持`es6 module`,不支持`commonjs`。
-:::
+#### sass-resources-loader
+一次性注入全局css变量，避免重复注入
+```js
+rules: [
+  {
+    test: /\.js$/,
+    use: [
+      'cache-loader',
+      {
+        loader: 'thread-loader', // 开启多进程处理 JS 逻辑
+        options: { workers: 3 }
+      },
+      'babel-loader'
+    ]
+  },
+  {
+    test: /\.scss$/,
+    use: [
+      'vue-style-loader',
+      'cache-loader',
+      'css-loader',
+      'postcss-loader', 
+      {
+        loader: 'thread-loader', // 给复杂的 Sass 编译分配多线程
+        options: { workers: 2 }
+      },
+      'sass-loader'
+      {
+        loader: 'sass-resources-loader', // 注入全局变量
+        options: {
+          // 填入你需要全局注入的 scss 文件路径
+          resources: [
+            path.resolve(__dirname, './src/assets/styles/variables.scss'),
+            path.resolve(__dirname, './src/assets/styles/mixins.scss')
+          ]
+        }
+      }
+    ]
+  }
+]
+```
+
+#### TerserWebpackPlugin
+减小包体积、代码混淆、多进程压缩
+```js
+const TerserPlugin = require('terser-webpack-plugin');
+optimization: {
+  minimize: true, // 开启压缩
+  minimizer: [
+    new TerserPlugin({
+      // 1. 开启多进程压缩（提升速度的核心！）
+      // 默认是核心数 - 1，建议显式设为 true
+      parallel: true, 
+
+      // 2. 开启缓存（提升二次打包速度）
+      cache: true,
+
+      // 3. 提取注释：防止每个文件头部都有一堆版权注释占体积
+      extractComments: false, 
+
+      terserOptions: {
+        compress: {
+          // 4. 生产环境自动剔除 console.log
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log'] // 确保彻底删掉
+        },
+        output: {
+          // 5. 去掉所有的注释（最精简）
+          comments: false,
+          beautify: false
+        },
+        // 6. 配合 SourceMap 定位线上 Bug（如果需要的话）
+        sourceMap: true 
+      }
+    })
+  ]
+}
+```
+
+#### DllPlugin、DllReferencePlugin预编译第三方库
+使用DllPlugin预编译第三方库vue、vue-router、axios、echarts等，生成dll.js和一份manifest.json，使用DllReferencePlugin插件引用预编译的json

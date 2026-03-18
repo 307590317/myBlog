@@ -22,6 +22,7 @@ module.exports = [
     items: [
       { text: 'Webpack', link: '/webpack/base' },
       { text: 'Rollup', link: '/rollup/base' },
+      { text: 'Project', link: '/project/base' },
     ]
   },
   {
