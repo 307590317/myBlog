@@ -63,8 +63,8 @@
       { id: "embyIINA", title: "IINA", iconId: "icon-IINA" , onClick: embyIINA, osCheck: [OS.isMacOS], },
   //    { id: "embyMX", title: "MXPlayer", iconId: "icon-MXPlayer"
   //        , onClick: embyMX, osCheck: [OS.isAndroid], },
-      { id: "embyMXPro", title: "MXPlayerPro", iconId: "icon-MXPlayerPro"
-          , onClick: embyMXPro, osCheck: [OS.isAndroid], },
+  //    { id: "embyMXPro", title: "MXPlayerPro", iconId: "icon-MXPlayerPro"
+  //        , onClick: embyMXPro, osCheck: [OS.isAndroid], },
   //    { id: "embyInfuse", title: "Infuse", iconId: "icon-infuse"
   //        , onClick: embyInfuse, osCheck: [OS.isApple], },
   //    { id: "embyStellarPlayer", title: "Stellar Player", iconId: "icon-StellarPlayer"
@@ -78,8 +78,8 @@
   //        , onClick: embyOmniPlayer, osCheck: [OS.isMacOS], },
   //    { id: "embyFigPlayer", title: "FigPlayer", iconId: "icon-FigPlayer"
   //        , onClick: embyFigPlayer, osCheck: [OS.isMacOS], },
-  //    { id: "embySenPlayer", title: "SenPlayer", iconId: "icon-SenPlayer"
-  //        , onClick: embySenPlayer, osCheck: [OS.isIOS], },
+      { id: "embySenPlayer", title: "SenPlayer", iconId: "icon-SenPlayer"
+          , onClick: embySenPlayer, osCheck: [OS.isIOS], },
   //    { id: "embyCopyUrl", title: "Copy Stream URL", iconId: "icon-Copy", onClick: embyCopyUrl, },
   ];
   // Jellyfin Icons: https://marella.github.io/material-icons/demo
@@ -452,12 +452,10 @@
   // https://github.com/iina/iina/issues/1991
   async function embyIINA() {
       let mediaInfo = await getEmbyMediaInfo();
-      console.log(`mediaInfo`, mediaInfo);
       const mountFilePath = mediaInfo.intent.path
       const nextFilePath = mountFilePath.split('/115挂载')[1]
-      const cloudDrive2Path = nextFilePath ? `http://localhost:19798/static/http/localhost:19798/False/115open${encodeURIComponent(nextFilePath)}?token=${localStorage.getItem('cd2t')}` : ''
+      const cloudDrive2Path = nextFilePath ? `http://localhost:19798/static/http/localhost:19798/False/115open${encodeURIComponent(nextFilePath)}?token=${localStorage.getItem('cd2t')}&title=${encodeURIComponent(mediaInfo.name)}` : ''
       console.log(`cloudDrive2Path`, cloudDrive2Path);
-      const subTitlePath = mediaInfo.subUrl
       // Build final IINA link
       let iinaUrl = `iina://weblink?url=${encodeURIComponent(cloudDrive2Path || mediaInfo.streamUrl)}`;
       console.log(`iinaUrl= ${iinaUrl}`);
@@ -513,26 +511,6 @@
       window.open(stellarPlayerUrl, "_self");
   }
 
-  // MPV
-  async function embyMPV() {
-      let mediaInfo = await getEmbyMediaInfo();
-      // Desktop requires additional setup, use this project: https://github.com/akiirui/mpv-handler
-      let streamUrl64 = btoa(String.fromCharCode.apply(null, new Uint8Array(new TextEncoder().encode(mediaInfo.streamUrl))))
-          .replace(/\//g, "_").replace(/\+/g, "-").replace(/\=/g, "");
-      let MPVUrl = `mpv-handler://play/${streamUrl64}`;
-      if (mediaInfo.subUrl.length > 0) {
-          let subUrl64 = btoa(mediaInfo.subUrl).replace(/\//g, "_").replace(/\+/g, "-").replace(/\=/g, "");
-          MPVUrl = `mpv-handler://play/${streamUrl64}/?subfile=${subUrl64}`;
-      }
-
-      if (OS.isIOS() || OS.isAndroid()) {
-          MPVUrl = `mpv-handler://${encodeURI(mediaInfo.streamUrl)}`;
-      }
-
-      console.log(MPVUrl);
-      window.open(MPVUrl, "_self");
-  }
-
   // see https://greasyfork.org/zh-CN/scripts/443916
   async function embyDDPlay() {
       // Check if windows local path
@@ -585,8 +563,14 @@
 
   async function embySenPlayer() {
       const mediaInfo = await getEmbyMediaInfo();
-      // see: app about, URL Schemes
-      const url = `SenPlayer://x-callback-url/play?url=${encodeURIComponent(mediaInfo.streamUrl)}`;
+      const mountFilePath = mediaInfo.intent.path
+      const nextFilePath = mountFilePath.split('/115挂载')[1]
+      const cloudDrive2Path = nextFilePath ? `http://localhost:19798/static/http/localhost:19798/False/115open${encodeURIComponent(nextFilePath)}?token=${localStorage.getItem('cd2t')}&title=${encodeURIComponent(mediaInfo.name)}` : ''
+      console.log(`cloudDrive2Path`, cloudDrive2Path);
+      const finalPlayUrl = cloudDrive2Path || mediaInfo.streamUrl;
+      let url = `SenPlayer://x-callback-url/play?url=${encodeURIComponent(finalPlayUrl)}`;
+      if(mediaInfo.subUrl) url +=`&sub=${encodeURIComponent(mediaInfo.subUrl)}`
+      // const url = `SenPlayer://x-callback-url/play?url=${encodeURIComponent(mediaInfo.streamUrl)}`;
       console.log(`SenPlayerUrl= ${url}`);
       window.open(url, "_self");
   }
